@@ -1,0 +1,3181 @@
+﻿﻿<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>ABTI · A+B 极速人格测试</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #08060c;
+      --panel: rgba(20, 14, 28, 0.88);
+      --panel-soft: rgba(33, 24, 44, 0.86);
+      --line: rgba(229, 186, 108, 0.16);
+      --gold: #e5ba6c;
+      --pink: #ff6f91;
+      --violet: #9a7dff;
+      --cyan: #73def5;
+      --text: #f7efe6;
+      --muted: rgba(247, 239, 230, 0.66);
+      --danger: #ff8b8b;
+      --success: #7fdda4;
+      --shadow: 0 24px 80px rgba(0, 0, 0, 0.42);
+      --radius-xl: 28px;
+      --radius-lg: 22px;
+      --radius-md: 16px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background:
+        radial-gradient(circle at 12% 8%, rgba(154, 125, 255, 0.18), transparent 24%),
+        radial-gradient(circle at 86% 16%, rgba(255, 111, 145, 0.16), transparent 22%),
+        radial-gradient(circle at 50% 100%, rgba(229, 186, 108, 0.08), transparent 30%),
+        linear-gradient(180deg, #0a0710, #120d18 55%, #09070d);
+      color: var(--text);
+      font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 28px 28px;
+      mask-image: linear-gradient(180deg, rgba(0,0,0,0.36), transparent 100%);
+    }
+
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+    pre {
+      margin: 0;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-family: "Cascadia Code", Consolas, monospace;
+      font-size: 12px;
+      line-height: 1.65;
+    }
+
+    .shell {
+      height: 100vh;
+      min-height: 100dvh;
+      display: grid;
+      grid-template-columns: 224px minmax(0, 1fr) 320px;
+      gap: 18px;
+      padding: 18px;
+    }
+
+    .glass {
+      background: linear-gradient(180deg, rgba(18, 12, 26, 0.96), rgba(14, 10, 22, 0.92));
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+    }
+
+    .sidebar, .main, .rail { min-height: 0; border-radius: 28px; }
+
+    .sidebar {
+      padding: 22px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .sidebar::before {
+      content: "";
+      position: absolute;
+      top: -44px;
+      right: -34px;
+      width: 148px;
+      height: 148px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,111,145,0.22), rgba(255,111,145,0));
+      pointer-events: none;
+    }
+
+    .eyebrow {
+      margin: 0;
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+
+    .brand h1, .hero h3, .code-big, .video-caption, .section-number {
+      margin: 0;
+      font-family: "Baskerville Old Face", "Times New Roman", "STSong", serif;
+      letter-spacing: 0.02em;
+    }
+
+    .brand h1 {
+      margin-top: 8px;
+      font-size: 42px;
+      line-height: 0.92;
+    }
+
+    .desc, .tiny, .meta { color: var(--muted); }
+    .desc { margin: 0; line-height: 1.75; }
+    .tiny { font-size: 12px; line-height: 1.65; }
+    .meta { font-size: 14px; line-height: 1.65; }
+
+    .nav-list { display: grid; gap: 8px; }
+
+    .nav-item {
+      width: 100%;
+      padding: 14px 16px;
+      text-align: left;
+      border-radius: 18px;
+      border: 1px solid transparent;
+      background: rgba(255,255,255,0.03);
+      color: var(--text);
+      transition: 180ms ease;
+    }
+
+    .nav-item strong { display: block; font-size: 15px; }
+    .nav-item span { font-size: 12px; color: var(--muted); }
+    .nav-item:hover { transform: translateY(-1px); background: rgba(255,255,255,0.06); }
+    .nav-item.active {
+      background: linear-gradient(135deg, rgba(229,186,108,0.12), rgba(154,125,255,0.14));
+      border-color: rgba(229,186,108,0.24);
+    }
+
+    .sidebar-card, .panel, .rail-card, .stat-card, .scene-card, .json-card, .step-card, .atlas-card {
+      padding: 16px;
+      border-radius: 20px;
+      border: 1px solid rgba(229, 186, 108, 0.12);
+      background: rgba(255,255,255,0.03);
+    }
+
+    .primary-btn, .action-btn.primary {
+      border: 0;
+      color: #180d0f;
+      background: linear-gradient(135deg, var(--gold), #f0cf8f);
+      box-shadow: 0 16px 28px rgba(229, 186, 108, 0.16);
+      font-weight: 700;
+    }
+
+    .primary-btn { min-height: 48px; border-radius: 18px; }
+
+    .main {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    .topbar {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 16px;
+      align-items: center;
+      padding: 18px 22px 14px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(8, 6, 12, 0.44);
+    }
+
+    .topbar h2 {
+      margin: 6px 0 0;
+      font-size: 30px;
+    }
+
+    .status-pill, .ghost-btn, .chip, .choice-chip, .action-btn, .mini-tag {
+      min-height: 40px;
+      padding: 0 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(229, 186, 108, 0.16);
+      background: rgba(255,255,255,0.04);
+      color: var(--text);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .status-pill {
+      min-height: 48px;
+      max-width: 100%;
+      flex-wrap: wrap;
+    }
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--success);
+      box-shadow: 0 0 0 6px rgba(127,221,164,0.12);
+    }
+    .status-dot.error {
+      background: var(--danger);
+      box-shadow: 0 0 0 6px rgba(255,139,139,0.12);
+    }
+
+    .scroll {
+      flex: 1;
+      overflow: auto;
+      padding: 22px;
+    }
+
+    .page { display: none; animation: fadeUp 220ms ease; }
+    .page.active { display: block; }
+    .stack { display: grid; gap: 18px; }
+
+    .hero {
+      padding: 24px;
+      border-radius: var(--radius-xl);
+      border: 1px solid rgba(229, 186, 108, 0.14);
+      background:
+        radial-gradient(circle at top right, rgba(255,111,145,0.16), transparent 26%),
+        linear-gradient(135deg, rgba(24, 17, 34, 0.98), rgba(14, 10, 22, 0.92));
+      display: grid;
+      gap: 16px;
+    }
+
+    .hero h3 {
+      font-size: clamp(32px, 4vw, 58px);
+      line-height: 1.02;
+    }
+
+    .hero-row, .chip-row, .action-row, .pick-row, .mini-row { display: flex; flex-wrap: wrap; gap: 10px; }
+
+    .quick-grid, .result-grid, .studio-grid, .stats-grid, .atlas-grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .quick-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .result-grid { grid-template-columns: minmax(320px, 420px) minmax(0, 1fr); }
+    .studio-grid { grid-template-columns: minmax(320px, 400px) minmax(0, 1fr); }
+    .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .atlas-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+    .pick-panel {
+      padding: 18px;
+      border-radius: 24px;
+      border: 1px solid rgba(229, 186, 108, 0.14);
+      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+      display: grid;
+      gap: 14px;
+      align-content: start;
+    }
+
+    .pick-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .section-number {
+      font-size: 58px;
+      line-height: 0.9;
+      color: var(--gold);
+    }
+
+    .quick-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .quick-chip {
+      min-height: 46px;
+      padding: 0 16px;
+      border-radius: 999px;
+      border: 1px solid rgba(229, 186, 108, 0.14);
+      background: rgba(255,255,255,0.04);
+      color: var(--text);
+      transition: 160ms ease;
+    }
+
+    .quick-chip:hover { transform: translateY(-1px); }
+    .quick-chip.active {
+      border-color: rgba(229, 186, 108, 0.38);
+      background: linear-gradient(135deg, rgba(229,186,108,0.14), rgba(154,125,255,0.14));
+      box-shadow: 0 10px 24px rgba(0,0,0,0.18);
+    }
+
+    .counter {
+      padding: 0 12px;
+      min-height: 32px;
+      border-radius: 999px;
+      background: rgba(229,186,108,0.1);
+      color: var(--gold);
+      display: inline-flex;
+      align-items: center;
+      font-size: 12px;
+    }
+
+    .summary-bar {
+      padding: 18px;
+      border-radius: 22px;
+      border: 1px solid rgba(229,186,108,0.16);
+      background:
+        linear-gradient(135deg, rgba(154,125,255,0.12), rgba(255,111,145,0.08));
+      display: grid;
+      gap: 12px;
+    }
+
+    .video-shell {
+      position: relative;
+      aspect-ratio: 9 / 16;
+      max-height: 760px;
+      border-radius: 28px;
+      overflow: hidden;
+      border: 1px solid rgba(229, 186, 108, 0.18);
+      background:
+        radial-gradient(circle at top, rgba(154,125,255,0.18), transparent 34%),
+        radial-gradient(circle at bottom, rgba(255,111,145,0.16), transparent 28%),
+        linear-gradient(180deg, #16101f, #0d0915 60%, #120c19);
+      box-shadow: 0 26px 60px rgba(0,0,0,0.34);
+    }
+
+    .video-overlay {
+      position: absolute;
+      inset: 0;
+      padding: 18px;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 14px;
+      background: linear-gradient(180deg, rgba(0,0,0,0.22), rgba(0,0,0,0.08) 38%, rgba(0,0,0,0.58));
+    }
+
+    .progress-row {
+      display: grid;
+      grid-template-columns: repeat(var(--scene-count, 4), minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .progress-row span {
+      height: 4px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.18);
+      overflow: hidden;
+      position: relative;
+      cursor: pointer;
+      transition: opacity 160ms ease, transform 160ms ease;
+    }
+
+    .progress-row span:hover {
+      opacity: 0.96;
+      transform: scaleY(1.16);
+    }
+
+    .progress-row span.active::after,
+    .progress-row span.done::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, var(--gold), #fff0c8);
+    }
+
+    .video-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .code-big {
+      font-size: clamp(62px, 8vw, 110px);
+      line-height: 0.9;
+      color: var(--gold);
+    }
+
+    .video-body {
+      display: grid;
+      align-content: center;
+      gap: 16px;
+      transition: opacity 180ms ease, transform 180ms ease;
+    }
+
+    .video-body.updating {
+      opacity: 0.18;
+      transform: translateY(10px);
+    }
+
+    .video-caption {
+      font-size: clamp(28px, 4vw, 54px);
+      line-height: 1.02;
+    }
+
+    .video-sub {
+      font-size: 16px;
+      line-height: 1.8;
+      color: rgba(255,255,255,0.82);
+      max-width: 92%;
+    }
+
+    .video-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .video-tag {
+      min-height: 34px;
+      padding: 0 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.06);
+      color: #fff3dd;
+      display: inline-flex;
+      align-items: center;
+      font-size: 12px;
+    }
+
+    .video-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    .video-btn {
+      min-height: 36px;
+      padding: 0 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.06);
+      color: var(--text);
+    }
+
+    .scene-meter {
+      min-height: 36px;
+      padding: 0 12px;
+      border-radius: 999px;
+      background: rgba(229,186,108,0.1);
+      color: var(--gold);
+      display: inline-flex;
+      align-items: center;
+      font-size: 12px;
+    }
+
+    .result-side {
+      display: grid;
+      gap: 16px;
+      align-content: start;
+    }
+
+    .portrait-panel, .narrative-card {
+      display: grid;
+      gap: 14px;
+      align-content: start;
+    }
+
+    .portrait-frame {
+      position: relative;
+      overflow: hidden;
+      border-radius: 24px;
+      border: 1px solid rgba(229, 186, 108, 0.16);
+      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+      min-height: 520px;
+    }
+
+    .frame-bloom {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 18% 18%, rgba(255,255,255,0.16), transparent 34%),
+        linear-gradient(180deg, transparent 30%, rgba(11,9,16,0.2) 72%, rgba(11,9,16,0.6) 100%);
+      mix-blend-mode: screen;
+      opacity: 0.9;
+    }
+
+    .faction-sigil {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      min-height: 34px;
+      padding: 0 14px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      z-index: 2;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(12,10,18,0.4);
+      backdrop-filter: blur(8px);
+      color: #fff2db;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .portrait-image {
+      width: 100%;
+      height: 100%;
+      min-height: 520px;
+      object-fit: cover;
+      display: block;
+      background: rgba(255,255,255,0.03);
+      transform: scale(1.02);
+      transition: transform 360ms ease, filter 360ms ease;
+    }
+
+    .portrait-note {
+      padding: 14px 16px;
+      border-radius: 18px;
+      border: 1px solid rgba(229,186,108,0.12);
+      background: rgba(255,255,255,0.03);
+      color: rgba(255,255,255,0.82);
+      line-height: 1.8;
+      font-size: 14px;
+    }
+
+    .thumb-frame {
+      position: relative;
+      overflow: hidden;
+      border-radius: 18px;
+      border: 1px solid rgba(229,186,108,0.14);
+      background: rgba(255,255,255,0.03);
+      margin-top: 12px;
+    }
+
+    .thumb-image {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      object-fit: cover;
+      display: block;
+      background: rgba(255,255,255,0.03);
+      transition: transform 280ms ease, filter 280ms ease;
+    }
+
+    .thumb-glow {
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.08), transparent 38%),
+        linear-gradient(180deg, transparent 42%, rgba(11,9,16,0.18) 72%, rgba(11,9,16,0.58) 100%);
+      pointer-events: none;
+    }
+
+    .faction-chip {
+      min-height: 28px;
+      padding: 0 12px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.06);
+      color: #fff2db;
+    }
+
+    .faction-note {
+      color: rgba(255,255,255,0.66);
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    .cover-hook {
+      margin: 2px 0 0;
+      font-size: 14px;
+      line-height: 1.8;
+      color: #ffdbe8;
+    }
+
+    .danger-line {
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      color: rgba(255,255,255,0.86);
+      font-size: 13px;
+      line-height: 1.8;
+    }
+
+    .story-copy {
+      margin: 0;
+      line-height: 1.92;
+      color: rgba(255,255,255,0.84);
+      font-size: 15px;
+    }
+
+    .verdict-quote {
+      padding: 18px 20px;
+      border-radius: 22px;
+      background: linear-gradient(135deg, rgba(229,186,108,0.14), rgba(255,111,145,0.1));
+      border: 1px solid rgba(229,186,108,0.18);
+      color: #fff1df;
+      font-size: 18px;
+      line-height: 1.8;
+    }
+
+    .headline {
+      font-size: 18px;
+      line-height: 1.8;
+      color: #ffd7e4;
+    }
+
+    .stat-card strong, .scene-card strong, .rail-card h4, .step-card strong {
+      display: block;
+      font-size: 16px;
+      margin-bottom: 6px;
+    }
+
+    .scene-list, .step-list, .field-stack, .rail-list { display: grid; gap: 12px; }
+
+    .atlas-card {
+      min-height: 210px;
+      text-align: left;
+      transition: 220ms ease;
+    }
+
+    .atlas-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 24px 64px rgba(0,0,0,0.34);
+    }
+
+    .atlas-card:hover .thumb-image {
+      transform: scale(1.06);
+      filter: saturate(1.08);
+    }
+
+    .portrait-frame:hover .portrait-image {
+      transform: scale(1.04);
+      filter: saturate(1.06);
+    }
+
+    .atlas-card.active { border-color: rgba(229,186,108,0.34); }
+
+    .faction-AB {
+      border-color: rgba(216,176,106,0.28);
+      box-shadow: inset 0 0 0 1px rgba(216,176,106,0.06), 0 18px 50px rgba(120,81,255,0.12);
+    }
+
+    .faction-AS {
+      border-color: rgba(141,167,255,0.28);
+      box-shadow: inset 0 0 0 1px rgba(141,167,255,0.06), 0 18px 50px rgba(93,135,255,0.12);
+    }
+
+    .faction-VB {
+      border-color: rgba(255,122,122,0.28);
+      box-shadow: inset 0 0 0 1px rgba(255,122,122,0.06), 0 18px 50px rgba(255,79,163,0.12);
+    }
+
+    .faction-VS {
+      border-color: rgba(236,180,164,0.28);
+      box-shadow: inset 0 0 0 1px rgba(236,180,164,0.06), 0 18px 50px rgba(176,98,143,0.12);
+    }
+
+    .portrait-frame.faction-AB .frame-bloom {
+      animation: abPulse 6.4s ease-in-out infinite;
+    }
+
+    .portrait-frame.faction-AS .frame-bloom {
+      animation: asScan 5.8s linear infinite;
+    }
+
+    .portrait-frame.faction-VB .frame-bloom {
+      animation: vbFlicker 2.8s ease-in-out infinite;
+    }
+
+    .portrait-frame.faction-VS .frame-bloom {
+      animation: vsMist 7.2s ease-in-out infinite;
+    }
+
+    .portrait-frame.faction-AB .portrait-image {
+      animation: revealFloat 7s ease-in-out infinite;
+    }
+
+    .portrait-frame.faction-AS .portrait-image {
+      animation: revealDrift 8.4s ease-in-out infinite;
+    }
+
+    .portrait-frame.faction-VB .portrait-image {
+      animation: revealRush 3.2s ease-in-out infinite;
+    }
+
+    .portrait-frame.faction-VS .portrait-image {
+      animation: revealSway 9s ease-in-out infinite;
+    }
+
+    @keyframes abPulse {
+      0%, 100% { opacity: 0.72; transform: translate3d(0, 0, 0) scale(1); }
+      50% { opacity: 1; transform: translate3d(-8px, 6px, 0) scale(1.04); }
+    }
+
+    @keyframes asScan {
+      0% { opacity: 0.3; transform: translateY(-12px); }
+      50% { opacity: 0.88; transform: translateY(10px); }
+      100% { opacity: 0.3; transform: translateY(-12px); }
+    }
+
+    @keyframes vbFlicker {
+      0%, 100% { opacity: 0.56; transform: scale(1); }
+      24% { opacity: 0.98; transform: scale(1.03); }
+      48% { opacity: 0.42; transform: scale(0.99); }
+      72% { opacity: 0.92; transform: scale(1.05); }
+    }
+
+    @keyframes vsMist {
+      0%, 100% { opacity: 0.64; transform: translateX(0) translateY(0); }
+      50% { opacity: 0.96; transform: translateX(10px) translateY(-8px); }
+    }
+
+    @keyframes revealFloat {
+      0%, 100% { transform: scale(1.02) translateY(0); }
+      50% { transform: scale(1.045) translateY(-6px); }
+    }
+
+    @keyframes revealDrift {
+      0%, 100% { transform: scale(1.02) translateX(0); }
+      50% { transform: scale(1.04) translateX(-8px); }
+    }
+
+    @keyframes revealRush {
+      0%, 100% { transform: scale(1.03) translateX(0); filter: saturate(1); }
+      50% { transform: scale(1.055) translateX(8px); filter: saturate(1.12); }
+    }
+
+    @keyframes revealSway {
+      0%, 100% { transform: scale(1.02) translateY(0) translateX(0); }
+      50% { transform: scale(1.04) translateY(-4px) translateX(6px); }
+    }
+
+    .atlas-code {
+      font-family: "Baskerville Old Face", "Times New Roman", serif;
+      font-size: 36px;
+      color: var(--gold);
+      margin: 8px 0 12px;
+    }
+
+    .field label {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--gold);
+      font-size: 12px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .input-shell { position: relative; }
+    .input-shell input, .json-box {
+      width: 100%;
+      border-radius: 16px;
+      border: 1px solid rgba(229,186,108,0.16);
+      background: rgba(255,255,255,0.04);
+      color: var(--text);
+    }
+
+    .input-shell input {
+      padding: 14px 16px;
+      outline: none;
+    }
+
+    .input-shell input:focus {
+      border-color: rgba(229,186,108,0.38);
+      box-shadow: 0 0 0 4px rgba(229,186,108,0.08);
+    }
+
+    .toggle-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 34px;
+      height: 34px;
+      border: 0;
+      border-radius: 50%;
+      background: transparent;
+      color: var(--muted);
+    }
+
+    .action-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .action-btn {
+      min-height: 48px;
+      justify-content: center;
+    }
+
+    .action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .json-box {
+      min-height: 160px;
+      max-height: 300px;
+      overflow: auto;
+      padding: 14px;
+    }
+
+    .step-card.running { border-color: rgba(229,186,108,0.3); }
+    .step-card.success { border-color: rgba(127,221,164,0.26); }
+    .step-card.error { border-color: rgba(255,139,139,0.24); }
+
+    .rail {
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      overflow: auto;
+    }
+
+    .rail-card h4 { margin: 0 0 10px; }
+
+    .rail-item {
+      padding: 12px 0;
+      border-top: 1px solid rgba(229,186,108,0.1);
+    }
+
+    .rail-item:first-child {
+      border-top: 0;
+      padding-top: 0;
+    }
+
+    .toast {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      z-index: 99;
+      display: none;
+      padding: 12px 16px;
+      border-radius: 16px;
+      background: rgba(8, 7, 12, 0.96);
+      border: 1px solid rgba(229,186,108,0.18);
+      color: var(--text);
+      box-shadow: var(--shadow);
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 1380px) {
+      .shell { grid-template-columns: 220px minmax(0, 1fr); }
+      .rail { display: none; }
+    }
+
+    @media (max-width: 1024px) {
+      body { overflow-y: auto; }
+      .shell {
+        height: auto;
+        min-height: 100dvh;
+        grid-template-columns: 1fr;
+        gap: 14px;
+        padding: 14px;
+      }
+      .sidebar, .main {
+        border-radius: 24px;
+      }
+      .sidebar {
+        flex-direction: row;
+        align-items: center;
+        padding: 14px;
+        gap: 12px;
+        overflow: visible;
+      }
+      .sidebar::before {
+        display: none;
+      }
+      .sidebar .brand, .sidebar .sidebar-card, .sidebar .primary-btn { display: none; }
+      .nav-list {
+        display: flex;
+        gap: 10px;
+        width: 100%;
+        overflow-x: auto;
+        overflow-y: hidden;
+        padding-bottom: 2px;
+        scrollbar-width: none;
+      }
+      .nav-list::-webkit-scrollbar {
+        display: none;
+      }
+      .nav-item {
+        min-width: 120px;
+        flex: 0 0 auto;
+      }
+      .topbar {
+        grid-template-columns: 1fr;
+        padding: 18px;
+      }
+      .status-pill {
+        width: 100%;
+      }
+      .scroll {
+        overflow: visible;
+        padding: 18px;
+      }
+      .quick-grid, .result-grid, .studio-grid, .stats-grid, .atlas-grid, .action-grid { grid-template-columns: 1fr; }
+      .video-shell {
+        width: min(100%, 440px);
+        max-height: none;
+        margin-inline: auto;
+      }
+      .portrait-frame,
+      .portrait-image {
+        min-height: 440px;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .shell {
+        gap: 10px;
+        padding: 10px;
+      }
+      .sidebar, .main {
+        border-radius: 20px;
+      }
+      .sidebar {
+        padding: 10px;
+      }
+      .nav-item {
+        min-width: 104px;
+        padding: 12px 14px;
+        border-radius: 16px;
+      }
+      .nav-item strong { font-size: 14px; }
+      .nav-item span { font-size: 11px; }
+      .topbar {
+        padding: 16px 14px 12px;
+        gap: 12px;
+      }
+      .topbar h2 {
+        font-size: 24px;
+      }
+      .status-pill {
+        min-height: 44px;
+        padding: 10px 12px;
+        border-radius: 18px;
+      }
+      .scroll {
+        padding: 14px;
+      }
+      .hero,
+      .pick-panel,
+      .summary-bar,
+      .sidebar-card,
+      .panel,
+      .rail-card,
+      .stat-card,
+      .scene-card,
+      .json-card,
+      .step-card,
+      .atlas-card {
+        padding: 14px;
+        border-radius: 18px;
+      }
+      .hero {
+        gap: 12px;
+      }
+      .hero h3 {
+        font-size: clamp(26px, 8.4vw, 38px);
+      }
+      .desc,
+      .meta,
+      .story-copy,
+      .headline,
+      .video-sub,
+      .portrait-note,
+      .cover-hook,
+      .faction-note {
+        font-size: 14px;
+      }
+      .pick-head {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .mini-row {
+        width: 100%;
+        justify-content: space-between;
+      }
+      .section-number {
+        font-size: 44px;
+      }
+      .quick-chips,
+      .hero-row,
+      .chip-row,
+      .action-row,
+      .pick-row,
+      .video-tags,
+      .video-actions {
+        gap: 8px;
+      }
+      .quick-chip {
+        min-height: 42px;
+        padding: 0 14px;
+        flex: 1 1 calc(50% - 8px);
+        justify-content: center;
+      }
+      .summary-bar .action-row {
+        display: grid;
+        grid-template-columns: 1fr;
+      }
+      .summary-bar .action-row > * {
+        width: 100%;
+        justify-content: center;
+      }
+      .hero-row .ghost-btn,
+      .video-actions > * {
+        flex: 1 1 calc(50% - 8px);
+        justify-content: center;
+      }
+      .video-overlay {
+        padding: 14px;
+      }
+      .code-big {
+        font-size: clamp(42px, 18vw, 72px);
+      }
+      .video-caption {
+        font-size: clamp(24px, 8vw, 34px);
+      }
+      .video-sub {
+        max-width: 100%;
+        line-height: 1.7;
+      }
+      .portrait-frame,
+      .portrait-image {
+        min-height: 360px;
+        border-radius: 20px;
+      }
+      .faction-sigil {
+        top: 12px;
+        right: 12px;
+      }
+      .atlas-code {
+        font-size: 32px;
+      }
+      .json-box {
+        min-height: 140px;
+        max-height: 240px;
+      }
+      .toast {
+        left: 12px;
+        right: 12px;
+        bottom: calc(12px + env(safe-area-inset-bottom));
+        text-align: center;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .shell {
+        padding: 8px;
+      }
+      .sidebar, .main {
+        border-radius: 18px;
+      }
+      .sidebar {
+        padding: 8px;
+      }
+      .nav-item {
+        min-width: 96px;
+        padding: 10px 12px;
+      }
+      .topbar h2 {
+        font-size: 22px;
+      }
+      .hero h3 {
+        font-size: clamp(22px, 8vw, 30px);
+      }
+      .quick-chip,
+      .hero-row .ghost-btn,
+      .video-actions > * {
+        flex-basis: 100%;
+      }
+      .status-pill,
+      .ghost-btn,
+      .chip,
+      .choice-chip,
+      .action-btn,
+      .mini-tag {
+        min-height: 38px;
+      }
+      .portrait-frame,
+      .portrait-image {
+        min-height: 300px;
+      }
+      .atlas-code {
+        font-size: 28px;
+      }
+      .input-shell input,
+      .json-box {
+        font-size: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+  <div id="toast" class="toast"></div>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const STORAGE_KEYS = {
+        config: "abti-fast-config",
+        ui: "abti-fast-ui",
+        result: "abti-fast-result",
+        history: "abti-fast-history"
+      };
+
+      const ROUTES = {
+        quick: "#/quick",
+        reveal: "#/reveal",
+        atlas: "#/atlas",
+        studio: "#/studio"
+      };
+
+      const NAV_ITEMS = [
+        { key: "quick", label: "速测", sub: "A+B 选词" },
+        { key: "reveal", label: "揭晓", sub: "人格判词" },
+        { key: "atlas", label: "图鉴", sub: "离谱类型库" },
+        { key: "studio", label: "工作台", sub: "模型增强" }
+      ];
+
+      const A_KEYWORDS = [
+        { label: "体面", note: "你对外一定要好看", score: { A: 2, T: 2 } },
+        { label: "高冷", note: "先端着再说", score: { A: 2, T: 1 } },
+        { label: "会装没事", note: "嘴上轻飘飘", score: { A: 2, F: 1 } },
+        { label: "氛围感", note: "人可以没有，镜头不能输", score: { V: 1, F: 2 } },
+        { label: "爱观察", note: "不说话但都记着", score: { A: 1, T: 2 } },
+        { label: "慢热", note: "得先试探安全区", score: { A: 1, F: 2 } },
+        { label: "会哄人", note: "表面柔软，实际会拿捏", score: { V: 1, T: 2 } },
+        { label: "嘴甜", note: "会用漂亮话维持气氛", score: { V: 2, F: 1 } },
+        { label: "松弛", note: "你很会演不在乎", score: { V: 2, T: 1 } },
+        { label: "爱控场", note: "必须有一点场面控制权", score: { A: 2, T: 2 } },
+        { label: "恋爱脑演技", note: "上头了也先装理智", score: { V: 2, F: 2 } },
+        { label: "讲分寸", note: "你会克制到让人心痒", score: { A: 2, T: 1 } }
+      ];
+
+      const B_KEYWORDS = [
+        { label: "爱翻旧账", note: "你会在心里重播十遍", score: { S: 2, I: 2 } },
+        { label: "嘴硬", note: "想要也说不要", score: { B: 1, I: 2 } },
+        { label: "想赢", note: "关系里也想拿 MVP", score: { B: 2, R: 2 } },
+        { label: "爱试探", note: "先搞心态再谈真心", score: { B: 2, I: 1 } },
+        { label: "会嫉妒", note: "嘴上体面，心里冒火", score: { S: 1, I: 2 } },
+        { label: "想被偏爱", note: "要的不多，要绝对", score: { S: 2, I: 1 } },
+        { label: "爱失控", note: "太平静会让你心虚", score: { B: 2, R: 2 } },
+        { label: "回头看前任", note: "不是想复合，是想知道谁输", score: { S: 2, R: 1 } },
+        { label: "报复心", note: "不是不发作，是延迟加倍", score: { B: 2, R: 2 } },
+        { label: "暧昧续命", note: "不确定更让你上头", score: { S: 1, I: 2 } },
+        { label: "自毁冲动", note: "最会拿自己祭天", score: { B: 2, R: 1 } },
+        { label: "明知故犯", note: "知道危险还要多看一眼", score: { B: 2, R: 2 } }
+      ];
+
+      const TYPE_BLUEPRINTS = {
+        ABTI: {
+          sampleA: ["体面", "高冷", "爱控场"],
+          sampleB: ["嘴硬", "想被偏爱", "爱试探"],
+          type_name: "体面求虐型嘴硬怪",
+          meme_label: "端着端着就翻车",
+          bait_title: "你不是高冷，你只是把求关注做成了高级定制，最后连发疯都发得像限量款。",
+          roast_line: "你最毒的地方不是装，而是装到别人以为你真没感觉，只有你自己知道你已经在心里演到大结局了。",
+          kill_shot: "你不是难搞，你是需要被偏爱到离谱，还要装作自己根本不稀罕。"
+        },
+        ABTR: {
+          sampleA: ["体面", "高冷", "爱控场"],
+          sampleB: ["想赢", "报复心", "明知故犯"],
+          type_name: "优雅反咬型记仇精",
+          meme_label: "嘴上算了，心里加倍",
+          bait_title: "你看起来像会给人台阶，实际上你只是想让对方先下去，然后你再把梯子抽走。",
+          roast_line: "你不是不生气，你只是很懂怎么把生气整理成漂亮动作，显得自己像顺手赢了。",
+          kill_shot: "你最擅长的不是原谅，是把报复排版得足够体面。"
+        },
+        ABFI: {
+          sampleA: ["会装没事", "慢热", "讲分寸"],
+          sampleB: ["嘴硬", "暧昧续命", "想被偏爱"],
+          type_name: "体面钓系型暗恋癌",
+          meme_label: "越想要越装佛",
+          bait_title: "你不是慢热，你是特别会把求爱信号剪碎，等别人自己拼出来。",
+          roast_line: "你嘴上所有的轻描淡写，本质上都是在赌别人会不会主动把你没说出口的那部分也负责理解掉。",
+          kill_shot: "你最会的不是拒绝，是把想被爱演成我其实无所谓。"
+        },
+        ABFR: {
+          sampleA: ["会装没事", "体面", "恋爱脑演技"],
+          sampleB: ["想赢", "爱失控", "自毁冲动"],
+          type_name: "漂亮翻车型恋爱疯批",
+          meme_label: "边哭边要赢",
+          bait_title: "你谈感情最离谱的地方，是明明已经上头，还要顺便争个输赢，最好连崩溃都比别人好看。",
+          roast_line: "你不是单纯的恋爱脑，你是一个需要把深情、体面和报复混在一起吃的人。",
+          kill_shot: "你可以输感情，但绝对不想输排面，所以最后通常两边一起炸。"
+        },
+        ASTI: {
+          sampleA: ["体面", "爱观察", "高冷"],
+          sampleB: ["爱翻旧账", "想被偏爱", "会嫉妒"],
+          type_name: "冷面缺爱型审讯者",
+          meme_label: "越缺越要装稳",
+          bait_title: "你看起来像没什么情绪，其实你只是把所有在意都改写成了审问、质疑和不动声色的盯梢。",
+          roast_line: "你不是安全感低，你是连索取安全感都要伪装成自己只是比较会观察。",
+          kill_shot: "你最大的别扭，是特别想被选，又特别怕别人看出来你想被选。"
+        },
+        ASTR: {
+          sampleA: ["体面", "爱观察", "高冷"],
+          sampleB: ["回头看前任", "想赢", "报复心"],
+          type_name: "清醒报丧型旧爱法官",
+          meme_label: "最会冷脸判刑",
+          bait_title: "你不是放下了，你只是正在等一个体面时机，对旧关系重新开庭宣判。",
+          roast_line: "你最厉害的不是走出来，而是把每次回头看都包装成合理复盘，像自己只是顺手在做案情分析。",
+          kill_shot: "你不是在怀念，你是在等一个机会证明当年不是你输。"
+        },
+        ASFI: {
+          sampleA: ["会装没事", "慢热", "爱观察"],
+          sampleB: ["爱翻旧账", "暧昧续命", "会嫉妒"],
+          type_name: "冷脸回放型旧账鬼",
+          meme_label: "嘴上翻篇，夜里返场",
+          bait_title: "你删记录很快，但脑内回放一条都不会少，像在给每段烂关系做法医鉴定。",
+          roast_line: "你不是真的念旧，你只是特别舍不得承认自己曾经认真过，所以非得把旧剧情反复重播成证据。",
+          kill_shot: "你最大的病不是回头，是回头以后还想装成只是路过。"
+        },
+        ASFR: {
+          sampleA: ["会装没事", "慢热", "讲分寸"],
+          sampleB: ["回头看前任", "报复心", "明知故犯"],
+          type_name: "笑着分尸型清醒怪",
+          meme_label: "最会礼貌性捅刀",
+          bait_title: "你一旦清醒起来，连阴阳怪气都带服务意识，温柔得像在给人办后事。",
+          roast_line: "你不是狠，你只是终于懒得演善良，于是每一句真话都像拿消毒过的刀往人身上划。",
+          kill_shot: "你最可怕的地方，是翻脸时还显得自己特别有道理。"
+        },
+        VBTI: {
+          sampleA: ["氛围感", "嘴甜", "会哄人"],
+          sampleB: ["嘴硬", "爱试探", "想被偏爱"],
+          type_name: "上头点火型恋爱炸弹",
+          meme_label: "不刺激就不像活着",
+          bait_title: "你不是深情，你是非得把关系压到冒烟，才肯承认自己已经上头。",
+          roast_line: "你越认真越要挑衅，越在乎越爱嘴硬，最后别人还没疯，你先把自己烧成了事故现场。",
+          kill_shot: "你谈关系最大的贡献，就是亲手把本来能谈好的东西炸出花。"
+        },
+        VBTR: {
+          sampleA: ["氛围感", "松弛", "嘴甜"],
+          sampleB: ["想赢", "爱失控", "报复心"],
+          type_name: "挑事夺冠型事故王",
+          meme_label: "没事都要拱出点火",
+          bait_title: "你最离谱的不是不稳定，是你一稳定就开始手痒，非得给关系加点输赢和火药味。",
+          roast_line: "你根本不怕翻车，你怕的是太普通。只要剧情不够炸，你就会自己下场拱火。",
+          kill_shot: "你不是爱得轰烈，你是特别擅长把日子过成事故演习。"
+        },
+        VBFI: {
+          sampleA: ["氛围感", "嘴甜", "恋爱脑演技"],
+          sampleB: ["嘴硬", "暧昧续命", "想被偏爱"],
+          type_name: "甜口钓杀型暧昧瘾君",
+          meme_label: "最会把暧昧当正餐",
+          bait_title: "你不是纯爱，你只是特别擅长把不确定关系养成高浓度精神零食，一边上头一边续命。",
+          roast_line: "你最会的不是确认关系，而是把每一次靠近都经营得像要发生点什么，直到所有人都累了还没一个说法。",
+          kill_shot: "你最擅长的温柔，就是让人误会自己快要被你选中了。"
+        },
+        VBFR: {
+          sampleA: ["氛围感", "恋爱脑演技", "嘴甜"],
+          sampleB: ["爱失控", "自毁冲动", "明知故犯"],
+          type_name: "浪漫自焚型修罗场宠儿",
+          meme_label: "一爱就想烧起来",
+          bait_title: "你不是恋爱脑，你是特别会给自己的烂冲动写情书，最后把翻车都包装成天降宿命。",
+          roast_line: "你最危险的地方是，一旦觉得有戏，你就会主动把局面推向不可收拾，好让自己的上头显得更值钱。",
+          kill_shot: "你不是在追求爱情，你是在追求一场足够配得上你情绪浓度的事故。"
+        },
+        VSTI: {
+          sampleA: ["会哄人", "松弛", "嘴甜"],
+          sampleB: ["爱翻旧账", "会嫉妒", "想被偏爱"],
+          type_name: "糖衣缺爱型心机猫",
+          meme_label: "一边撒娇一边记账",
+          bait_title: "你表面上最好接近，实际上心里有一本隐形账本，谁没偏爱你、谁敷衍过你，你全都记得。",
+          roast_line: "你最会让人误以为你很好哄，直到对方发现你那些轻飘飘的委屈，实际上每条都算利息。",
+          kill_shot: "你不是单纯想被爱，你是想被爱到别人最好有点心虚。"
+        },
+        VSTR: {
+          sampleA: ["松弛", "会哄人", "嘴甜"],
+          sampleB: ["回头看前任", "想赢", "报复心"],
+          type_name: "笑面清算型回头煞",
+          meme_label: "最会体面复仇",
+          bait_title: "你不是回头看旧人，你是在检查自己当年的情绪投入有没有亏本，顺便决定要不要补一刀。",
+          roast_line: "你一边表现得像早就算了，一边在心里把旧爱和现状拉出来逐项对比，最后得出‘我还是得赢’的结论。",
+          kill_shot: "你最恐怖的温柔，是笑着把旧账一笔一笔算给对方听。"
+        },
+        VSFI: {
+          sampleA: ["慢热", "嘴甜", "恋爱脑演技"],
+          sampleB: ["爱翻旧账", "暧昧续命", "想被偏爱"],
+          type_name: "回头审判型烂戏遗老",
+          meme_label: "断联只是剧情暂停",
+          bait_title: "你不是放不下，你只是很怕那段烂剧情如果不再复盘，就显得你当初白疯了。",
+          roast_line: "你会偷偷看旧人近况，不一定是想复合，更多是想确认谁比谁惨，谁先承认输。",
+          kill_shot: "你最大的恋爱病，不是恋旧，是特别需要旧剧情证明自己没白投入。"
+        },
+        VSFR: {
+          sampleA: ["慢热", "嘴甜", "氛围感"],
+          sampleB: ["回头看前任", "报复心", "明知故犯"],
+          type_name: "嘴毒装淡型情绪刺客",
+          meme_label: "最会轻描淡写地下狠手",
+          bait_title: "你表面最擅长的事是淡定，实际上你只是把恶毒和在意都压缩进了最平静的语气里。",
+          roast_line: "你不是不在乎，你只是太会把在乎翻译成审判和嫌弃，让别人先误以为你早就抽身。",
+          kill_shot: "你一边嫌对方烦，一边又默许自己被那点烂情绪吊着走。"
+        }
+      };
+
+      const PORTRAIT_THEMES = {
+        ABTI: { c1: "#d8b06a", c2: "#7851ff", c3: "#1a1326", accent: "镜面电梯", aura: "体面缺爱", pose: "冷脸立像" },
+        ABTR: { c1: "#f0c98a", c2: "#b43a57", c3: "#20111a", accent: "碎裂香槟", aura: "优雅反咬", pose: "审判站姿" },
+        ABFI: { c1: "#f2c8ad", c2: "#8f7bff", c3: "#1d1624", accent: "雨夜街灯", aura: "钓系暗涌", pose: "低头侧影" },
+        ABFR: { c1: "#ffb48f", c2: "#ff5e7c", c3: "#231018", accent: "崩溃妆面", aura: "漂亮翻车", pose: "失控回眸" },
+        ASTI: { c1: "#d8c38a", c2: "#5d87ff", c3: "#111927", accent: "档案长廊", aura: "冷面审讯", pose: "凝视正脸" },
+        ASTR: { c1: "#d5b680", c2: "#7c8dff", c3: "#17161f", accent: "旧案法庭", aura: "清醒审判", pose: "长廊背影" },
+        ASFI: { c1: "#c2a77e", c2: "#7a73d6", c3: "#19151e", accent: "旧讯息墙", aura: "回放成瘾", pose: "夜坐剪影" },
+        ASFR: { c1: "#ead0b0", c2: "#c4717d", c3: "#1b1417", accent: "礼貌凶器", aura: "温柔分尸", pose: "持刀手套" },
+        VBTI: { c1: "#ffb36b", c2: "#ff4fa3", c3: "#1c0f1f", accent: "夜店霓虹", aura: "上头点火", pose: "挑衅正视" },
+        VBTR: { c1: "#ffca7c", c2: "#ff5b5b", c3: "#1f1014", accent: "火药赛道", aura: "事故夺冠", pose: "斜肩坏笑" },
+        VBFI: { c1: "#ffcfca", c2: "#9b6dff", c3: "#1d1320", accent: "午夜甜品店", aura: "暧昧成瘾", pose: "柔光抬眼" },
+        VBFR: { c1: "#ffc299", c2: "#ff6585", c3: "#241117", accent: "烛光残局", aura: "浪漫自焚", pose: "混乱凝视" },
+        VSTI: { c1: "#f2d49b", c2: "#ff8f7a", c3: "#1d1620", accent: "糖衣房间", aura: "甜口算计", pose: "猫系半身" },
+        VSTR: { c1: "#efd4a7", c2: "#d56f6f", c3: "#191419", accent: "复仇酒廊", aura: "笑面清算", pose: "回头笑像" },
+        VSFI: { c1: "#d8c0a1", c2: "#9d7cff", c3: "#1a1520", accent: "旧物卧室", aura: "烂戏遗老", pose: "抱膝坐像" },
+        VSFR: { c1: "#e4c2ba", c2: "#b0628f", c3: "#191218", accent: "暮色丝绸", aura: "嘴毒淡感", pose: "静态侧颜" }
+      };
+
+      const PORTRAIT_BLUEPRINTS = {
+        ABTI: { scene: "mirror", body: "suit", hair: "slick-bob", face: "stoic", prop: "phone", layout: "center-tall", head: "sharp-oval", detail: "earring", thumb: "headline-left" },
+        ABTR: { scene: "shards", body: "dress-suit", hair: "wave-long", face: "smirk", prop: "glass", layout: "right-lean", head: "diamond", detail: "mole", thumb: "quote-right" },
+        ABFI: { scene: "rain", body: "trench", hair: "soft-long", face: "downcast", prop: "umbrella", layout: "left-side", head: "soft-heart", detail: "tear", thumb: "vertical-left" },
+        ABFR: { scene: "smear", body: "slip", hair: "messy-wave", face: "broken", prop: "lipstick", layout: "close-up", head: "full-round", detail: "smudge", thumb: "close-zoom" },
+        ASTI: { scene: "archive", body: "coat", hair: "sharp-part", face: "stare", prop: "folder", layout: "front-solid", head: "long-rect", detail: "glasses", thumb: "center-badge" },
+        ASTR: { scene: "court", body: "judge-coat", hair: "sleek-back", face: "cold", prop: "scale", layout: "back-turn", head: "narrow-point", detail: "scar-brow", thumb: "shoulder-look" },
+        ASFI: { scene: "chatwall", body: "hoodie", hair: "loose-mid", face: "tired", prop: "chat", layout: "seated", head: "droop-oval", detail: "eye-bag", thumb: "seated-card" },
+        ASFR: { scene: "funeral", body: "glove-dress", hair: "bun", face: "knife-smile", prop: "rose", layout: "half-body", head: "sharp-heart", detail: "veil", thumb: "dark-frame" },
+        VBTI: { scene: "club", body: "leather", hair: "high-pony", face: "glare", prop: "spark", layout: "dynamic", head: "fox", detail: "star", thumb: "tilt-action" },
+        VBTR: { scene: "race", body: "racer", hair: "spiky", face: "grin", prop: "flag", layout: "tilt", head: "wide-jaw", detail: "bandage", thumb: "speed-line" },
+        VBFI: { scene: "dessert", body: "soft-knit", hair: "curl-bob", face: "dreamy", prop: "cake", layout: "sweet-close", head: "baby-round", detail: "blush", thumb: "sweet-sticker" },
+        VBFR: { scene: "candle", body: "velvet", hair: "wild-long", face: "manic", prop: "flame", layout: "chaotic", head: "storm-oval", detail: "lash-heavy", thumb: "chaos-burn" },
+        VSTI: { scene: "catroom", body: "cardigan", hair: "cat-bob", face: "cute-sly", prop: "paw", layout: "soft-front", head: "cat-heart", detail: "whisker", thumb: "cute-note" },
+        VSTR: { scene: "lounge", body: "blazer", hair: "swept", face: "side-smile", prop: "martini", layout: "over-shoulder", head: "sleek-oval", detail: "earring-long", thumb: "lounge-ticket" },
+        VSFI: { scene: "bedroom", body: "sweater", hair: "soft-braid", face: "wistful", prop: "polaroid", layout: "curl-seat", head: "soft-long", detail: "freckle", thumb: "memory-stack" },
+        VSFR: { scene: "silk", body: "silk-top", hair: "sleek-long", face: "flat-cold", prop: "pin", layout: "profile", head: "blade-profile", detail: "beauty-mark", thumb: "profile-strip" }
+      };
+
+      const PROFILE_BLUEPRINTS = {
+        ABTI: {
+          user_portrait: "像那种朋友圈永远只发高级角度和冷淡文案的人，表面像不缺爱，实际每一次已读不回都能让你在脑内补完一整季虐恋连续剧。",
+          friend_review: "朋友锐评：你不是高冷，你是把求关注这件事包装成了奢侈品联名款，谁靠近你都得先做阅读理解。",
+          self_mockery: "自嘲弹幕：本人最大特长是装作没事，第二特长是回家以后把一句话翻译成一百种被辜负的版本。",
+          contrast_twist: "反差反转：白天像高配冷脸审美标本，夜里像偷偷检查聊天框有没有新红点的焦虑收藏家。",
+          portrait_caption: "像一张把体面、控制欲和隐形缺爱同时摆上台面的高级营业海报。"
+        },
+        ABTR: {
+          user_portrait: "像那种分手都能穿得像颁奖礼的人，表面祝你幸福，心里已经给你列完了迟到报应清单，只等哪天优雅验收。",
+          friend_review: "朋友锐评：你最可怕的不是记仇，是你连报复都要讲结构、讲措辞、讲观感，像在做一份漂亮的复盘报告。",
+          self_mockery: "自嘲弹幕：我没生气，我只是把每一次不爽都保存成待归档素材，哪天心情好再拿出来公开展览。",
+          contrast_twist: "反差反转：看起来像最会翻篇的人，实际上只是最擅长把旧账冷藏，等到最佳口感再端出来。",
+          portrait_caption: "像一张带香槟气味的复仇邀请函，礼貌、好看，但一看就知道记着仇。"
+        },
+        ABFI: {
+          user_portrait: "像那种聊天永远留三分余地的人，嘴上说随便，实际每个停顿都在暗示别人继续追问，暧昧对你来说更像一种高级慢性病。",
+          friend_review: "朋友锐评：你不是慢热，你是喜欢把想被爱拆成密码，让别人一边上头一边猜题，猜不对还会被你扣细节分。",
+          self_mockery: "自嘲弹幕：我没有在钓，我只是把每一句“没事”都说得像在等人继续哄而已。",
+          contrast_twist: "反差反转：看着像最讲分寸的人，实际上你最擅长让别人先越界，好证明自己值得被偏爱。",
+          portrait_caption: "像一张把克制和暗钓缝在一起的夜雨人像，温柔外壳里全是试探。"
+        },
+        ABFR: {
+          user_portrait: "像那种哭都要挑最好看角度的人，恋爱一旦开始就自动切换成情绪大戏制片人，连崩溃都要争取镜头语言完整。",
+          friend_review: "朋友锐评：你不是纯粹恋爱脑，你是特别会把深情、体面和胜负欲炖成一锅，最后谁都别想完整下桌。",
+          self_mockery: "自嘲弹幕：我不是非要赢，我只是受伤的时候顺便也想把场面拿回来，最好还能顺带美一下。",
+          contrast_twist: "反差反转：表面像被爱情伤到的人，实际上最先停不下来的往往是你那颗想把局势翻盘的脑子。",
+          portrait_caption: "像一张在高光和崩坏之间来回拉扯的恋爱事故封面。"
+        },
+        ASTI: {
+          user_portrait: "像那种安静坐着就让人觉得难靠近的人，你不靠吵闹索取安全感，而是靠观察、盘问和沉默把别人逼到自己露底。",
+          friend_review: "朋友锐评：你不是敏感，你是会把在意伪装成侦查行动，谁敷衍你一下你都能在心里立案侦办。",
+          self_mockery: "自嘲弹幕：我不是查岗，我只是需要一点证据证明自己没有被随便对待而已。",
+          contrast_twist: "反差反转：越是表现得冷静无波，越说明你已经在心里做完三轮关系风控评估。",
+          portrait_caption: "像一张带档案室冷光的审讯者肖像，安静，但全是压迫感。"
+        },
+        ASTR: {
+          user_portrait: "像那种最会对旧关系做判决的人，你不一定想回头，但一定想确认当初那场感情审判里，输的人绝对不能是自己。",
+          friend_review: "朋友锐评：你不是念旧，你是在等一个体面结案通知书，好让自己彻底赢着离场。",
+          self_mockery: "自嘲弹幕：我不是放不下，我只是偶尔需要回去看看那桩旧案有没有更新到我满意的结局。",
+          contrast_twist: "反差反转：看着像已经抽身的冷脸法官，实际上你的回头率只不过被你包装成了案件复核。",
+          portrait_caption: "像一张旧案重审海报，冷、稳、带一点迟到的胜负执念。"
+        },
+        ASFI: {
+          user_portrait: "像那种删聊天记录比谁都快的人，但真正舍不得清空的是脑子里的回放列表，旧剧情一有空就会被你拖出来逐帧复习。",
+          friend_review: "朋友锐评：你不是念旧，你是舍不得让自己当年的认真变成笑话，所以必须把旧账反复翻到有个说法。",
+          self_mockery: "自嘲弹幕：本人嘴上最常见的台词是“早过去了”，身体最诚实的动作是深夜偷偷回想他当时到底什么意思。",
+          contrast_twist: "反差反转：表面像最会翻篇的人，实际上你只是把旧情绪压缩成了夜间自动启动程序。",
+          portrait_caption: "像一张在旧消息残影里反复重播的孤独法医式画像。"
+        },
+        ASFR: {
+          user_portrait: "像那种翻脸也特别体面的人，连刺人都带流程感，笑着说狠话的样子比直接发火更像真正危险分子。",
+          friend_review: "朋友锐评：你不是情绪化，你是终于懒得装，于是每一句实话都像已经消过毒的精准手术刀。",
+          self_mockery: "自嘲弹幕：我没有阴阳怪气，我只是把真实意见包得太礼貌，导致听起来像在送对方体面出殡。",
+          contrast_twist: "反差反转：表面像最讲分寸的人，一旦不想装了，你反而是全场最会一刀封喉的那个。",
+          portrait_caption: "像一张礼貌到让人后背发凉的清醒系危险人像。"
+        },
+        VBTI: {
+          user_portrait: "像那种只要气氛不够热就会自己下场点火的人，你不怕关系乱，怕的是太平，平到显得自己一点都不特别。",
+          friend_review: "朋友锐评：你不是深情，你是非得把所有互动都推到冒烟边缘，才肯承认自己真的上头了。",
+          self_mockery: "自嘲弹幕：我不是故意作，我只是觉得如果一点火花都没有，那还不如让我自己炸一下算了。",
+          contrast_twist: "反差反转：表面像最会制造浪漫的人，实际上你最稳定的输出往往是亲手加码事故烈度。",
+          portrait_caption: "像一张夜店火光里拍下来的危险甜心海报，漂亮又明显不安分。"
+        },
+        VBTR: {
+          user_portrait: "像那种日子一顺就开始无聊的人，你天然需要关系里有一点对抗、一点火药、一点输赢，不然就会自己创造赛点。",
+          friend_review: "朋友锐评：你不是不稳定，你是太会把普通日常玩成真人秀事故现场，平静对你来说像一种失败。",
+          self_mockery: "自嘲弹幕：我不是爱折腾，我只是实在接受不了一段关系安静到像没人写剧本。",
+          contrast_twist: "反差反转：看起来像最会活跃气氛的人，实际上你最擅长的是把气氛一步步拱成爆点。",
+          portrait_caption: "像一张随时会把平静生活点成事故演练的夜色海报。"
+        },
+        VBFI: {
+          user_portrait: "像那种把暧昧经营得比正经关系还完整的人，你最拿手的不是确认关系，而是让别人持续误以为自己马上要被你选中。",
+          friend_review: "朋友锐评：你不是纯爱，你是特别会给“没结果”做氛围包装，让所有人都舍不得先醒。",
+          self_mockery: "自嘲弹幕：我没有吊着谁，我只是觉得不确定的那点甜，比确定以后掉价的那点稳更上头。",
+          contrast_twist: "反差反转：表面像最温柔的那个人，实际上你最会用温柔把别人留在长期待定区。",
+          portrait_caption: "像一张在糖霜和模糊滤镜里精心延长保质期的暧昧海报。"
+        },
+        VBFR: {
+          user_portrait: "像那种一爱上就自带宿命感滤镜的人，越危险越像命运，越混乱越觉得自己终于遇到了配得上情绪浓度的大戏。",
+          friend_review: "朋友锐评：你不是单纯恋爱脑，你是会主动给烂冲动写史诗旁白，最后连翻车都搞得像命中注定。",
+          self_mockery: "自嘲弹幕：我不是故意扑火，我只是觉得安全的爱配不上我这么大的情绪声量。",
+          contrast_twist: "反差反转：表面像最相信爱情的人，实际上你真正上瘾的，往往是那种快失控时的刺激感。",
+          portrait_caption: "像一张把浪漫、危险和自焚感混剪在一起的修罗场封面。"
+        },
+        VSTI: {
+          user_portrait: "像那种最好接近也最不好惹的人，表面软软甜甜，心里却有本账，谁少给了一点偏爱你都能记到下个季度。",
+          friend_review: "朋友锐评：你不是单纯会撒娇，你是会把委屈包装成可爱，再让别人带着愧疚给你加倍补偿。",
+          self_mockery: "自嘲弹幕：我不是记仇，我只是会把每一次没被哄好的细节都默默放进长期观察名单。",
+          contrast_twist: "反差反转：看起来像最会提供情绪价值的人，实际上你也最擅长让别人补交情绪税。",
+          portrait_caption: "像一张甜口外观下藏着利息计算器的猫系人像海报。"
+        },
+        VSTR: {
+          user_portrait: "像那种笑着回头看旧人近况的人，表面像八卦，实际像财务审计，主要目的不是怀念，是确认自己绝对没有亏本。",
+          friend_review: "朋友锐评：你不是回头，你是在礼貌地核算旧情投入产出比，必要时顺手再做一次体面复仇。",
+          self_mockery: "自嘲弹幕：我不是放不下，我只是偶尔会想看看那位前任现在到底有没有后悔到我满意的程度。",
+          contrast_twist: "反差反转：表面像最松弛幽默的人，一旦碰到旧账，你会瞬间切回最会算总账的那张脸。",
+          portrait_caption: "像一张笑着举杯、心里却在清算旧账的复仇酒廊海报。"
+        },
+        VSFI: {
+          user_portrait: "像那种把旧物留着说是懒得丢的人，实际每一件都在帮你证明那段烂戏不是白演，你需要旧剧情给现在的自己盖个章。",
+          friend_review: "朋友锐评：你不是单纯放不下，你是特别需要过去留下点凭证，证明自己当时疯得有价值。",
+          self_mockery: "自嘲弹幕：我没有恋旧，我只是偶尔需要旧聊天、旧歌单、旧照片一起出来给我开个追忆答辩会。",
+          contrast_twist: "反差反转：看着像最慢热温吞的人，实际上你的情绪库存里堆满了还没过保的旧案材料。",
+          portrait_caption: "像一张在旧物堆和残余情绪里缓慢发酵的怀旧系事故海报。"
+        },
+        VSFR: {
+          user_portrait: "像那种讲话永远很淡的人，字数不多、表情也不大，但真正致命的地方是你每句轻描淡写里都藏着一根带倒刺的针。",
+          friend_review: "朋友锐评：你不是嘴毒，你是太会把嫌弃和在意压成同一种语气，让人分不清你到底早抽身了没有。",
+          self_mockery: "自嘲弹幕：我没有阴阳怪气，我只是把不爽说得太平静，平静到别人以为那不是致命意见。",
+          contrast_twist: "反差反转：看起来像最淡的人，一旦认真嫌弃起来，你反而是全场最难忽视的情绪刺客。",
+          portrait_caption: "像一张丝绸表面下藏着冷针的静态危险人像。"
+        }
+      };
+
+      const OUTCOME_BLUEPRINTS = {
+        ABTI: {
+          relationship_hazard: "你谈关系最大的问题，是永远想先被证明值得，再肯承认真正在乎，结果把每次靠近都折腾成尊严考试。",
+          self_destruct_mode: "你自毁时最爱干的事，是表面收回消息、收回热情、收回表情，私下却把每个细节翻来覆去审到天亮。",
+          fatal_scene: "高发翻车现场出现在对方没及时回应、没给偏爱特权、或者让你觉得自己只是普通选项的时候。",
+          cursed_talent: "你的诅咒型天赋是把冷脸、审美和缺爱捏成一个高价人格包装，谁靠近都容易误以为自己在拆限量盲盒。",
+          survival_tip: "别再把体面当防弹衣。你最该学的不是更会藏，是在想要的时候别总逼别人先猜中。"
+        },
+        ABTR: {
+          relationship_hazard: "你进关系后最危险的，不是情绪爆炸，而是你会静静记下每一次失望，等到最体面的时机一起结算。",
+          self_destruct_mode: "你自毁时不像崩溃，更像礼貌撤资，边撤边把对方的旧账做成一份随时可公开的追责文档。",
+          fatal_scene: "高发翻车现场通常发生在你觉得自己被敷衍、被轻看、或者在关系里显得不够赢的时候。",
+          cursed_talent: "你的诅咒型天赋是能把报复心做得非常高级，高级到别人被刺完还要怀疑是不是自己先活该。",
+          survival_tip: "别总等完美时机再翻脸。你真正该丢掉的不是情绪，是那套一定要赢得漂亮的执念。"
+        },
+        ABFI: {
+          relationship_hazard: "你在关系里的事故点，是太会暗示却不肯直说，最后把想被爱这件事演成了一场需要对方主动破题的密室逃脱。",
+          self_destruct_mode: "你翻车时不会直接闹，而是降低热度、变得更轻、更淡、更若无其事，逼得别人自己意识到你已经在失望。",
+          fatal_scene: "高发翻车现场通常出现在暧昧迟迟不给说法、对方没读懂你留的暗号、或者你觉得自己快被当普通朋友的时候。",
+          cursed_talent: "你的诅咒型天赋是让克制看起来像风情，让沉默也像邀请，所以别人很容易越陷越深却摸不到门牌号。",
+          survival_tip: "别再把“懂我的人自然会懂”当真理。你不是高深，你只是太怕主动会显得自己掉价。"
+        },
+        ABFR: {
+          relationship_hazard: "你关系里的大事故，是一边要爱，一边要赢，一边还想把自己受伤时的样子控制得足够好看。",
+          self_destruct_mode: "你翻车时最致命的不是哭，是会边哭边加戏、边心碎边复盘、边上头边试图把局势拉回自己手里。",
+          fatal_scene: "高发翻车现场发生在你确认自己已经上头、但又感觉对方没有跟你同等投入的时候。",
+          cursed_talent: "你的诅咒型天赋是能把崩溃拍得像高潮戏，把恋爱事故剪得像宿命名场面，连自己都容易被骗进去。",
+          survival_tip: "别再拿排面救情绪。关系不是颁奖礼，你也不是每次都得漂亮到最后一帧。"
+        },
+        ASTI: {
+          relationship_hazard: "你在关系里最像隐形审讯官，越在乎越不直说，反而会通过盘问、观察和沉默来确认自己有没有被认真对待。",
+          self_destruct_mode: "你自毁时不是闹，是开始收集证据、放大异常、反复校验每个细节，最后把自己也困进怀疑回廊。",
+          fatal_scene: "高发翻车现场通常在你察觉对方态度细节变冷、回应模式变化、或者你开始觉得自己被模糊处理时爆发。",
+          cursed_talent: "你的诅咒型天赋是把敏感包装成洞察，把缺爱包装成理性，最后谁都看不出你其实已经快失守。",
+          survival_tip: "别再用侦查代替表达。你需要的不是更多证据，而是承认自己真的想被坚定站边。"
+        },
+        ASTR: {
+          relationship_hazard: "你关系里的病根是太会结案，哪怕还没真的放下，也会先把自己摆成那个冷静审判、绝不回头的人。",
+          self_destruct_mode: "你自毁时会偷偷重启旧案，回看旧人、旧话、旧失衡，然后在脑内一遍遍补写你本该更赢的结局。",
+          fatal_scene: "高发翻车现场通常发生在你看到旧关系有了新动向、或突然意识到自己当年没拿到想要的体面结果时。",
+          cursed_talent: "你的诅咒型天赋是能把旧情绪保存得像证物一样完整，过很久都还能原封不动地提取出来重新判一次。",
+          survival_tip: "别再把清醒当终审。真正的体面不是赢回来，而是不需要再证明谁错得更彻底。"
+        },
+        ASFI: {
+          relationship_hazard: "你在关系里的事故不是吵，而是把该翻篇的东西偷偷留成夜间回放素材，越说过去了，越舍不得彻底删档。",
+          self_destruct_mode: "你自毁时会一边维持日常，一边偷偷重温旧消息、旧语气、旧瞬间，直到自己再次被当年的认真拖下水。",
+          fatal_scene: "高发翻车现场通常出现在深夜、旧歌单、旧照片、或者任何能证明你曾经特别投入过的触发物出现时。",
+          cursed_talent: "你的诅咒型天赋是把旧剧情内化成长期库存，哪怕关系早没了，你依然能从残片里复原完整情绪。",
+          survival_tip: "别再拿复盘冒充疗伤。你真正该放掉的不是证据，而是那个必须证明自己没白疯的执念。"
+        },
+        ASFR: {
+          relationship_hazard: "你最危险的关系模式，是清醒以后不再求理解，而是直接把人和局势一起拆了，拆完还像在帮对方做总结。",
+          self_destruct_mode: "你自毁时不是大吵，而是开始用最稳定的语气说最狠的实话，顺便把自己也推向彻底抽离的极端。",
+          fatal_scene: "高发翻车现场通常出现在你发现自己忍耐过头、体面过头、或者终于意识到对方不配你继续给台阶的时候。",
+          cursed_talent: "你的诅咒型天赋是把刀磨得极薄，薄到别人直到流血才发现你早就动手了。",
+          survival_tip: "别总等失望攒到临界点再开刀。你需要更早说不，而不是更晚把所有话都说绝。"
+        },
+        VBTI: {
+          relationship_hazard: "你最大的关系事故，是需要持续的火花来确认自己活着，于是越在乎越会主动把局势往刺激处推。",
+          self_destruct_mode: "你自毁时会嘴硬、挑衅、故意制造落差，宁可把关系点着，也不愿承认自己只是想被稳稳接住。",
+          fatal_scene: "高发翻车现场通常发生在你觉得局面太平、对方不够上头、或者互动开始像普通日常时。",
+          cursed_talent: "你的诅咒型天赋是能把每段关系都点出名场面，坏消息是你最容易被自己制造的火焰反噬。",
+          survival_tip: "别再把浓度当真爱。不是每段关系都需要爆点，有些稳定不是无聊，是安全。"
+        },
+        VBTR: {
+          relationship_hazard: "你关系里的大病，是一稳定就开始手痒，非得加点输赢、火药和悬念，才能感觉自己还在故事中心。",
+          self_destruct_mode: "你自毁时像综艺导演亲自下场拱火，越是本来能过的日子，越容易被你改造成事故测试现场。",
+          fatal_scene: "高发翻车现场通常出现在太顺、太稳、太无波澜的日常里，因为你会主动怀疑这是不是无聊的前兆。",
+          cursed_talent: "你的诅咒型天赋是把平淡局面拱出戏剧张力，连没事都能被你操作成值得热评区开会的程度。",
+          survival_tip: "别把平静误读成没爱。很多时候你想要的不是更大火花，而是学会不靠事故证明自己存在。"
+        },
+        VBFI: {
+          relationship_hazard: "你最容易出事的地方，是太会经营暧昧而不舍得落地，像把糖分维持在最上头、最不负责的区间里。",
+          self_destruct_mode: "你自毁时不会彻底消失，而是会继续给一点温柔、留一点余温、丢一点信号，让所有人都醒不彻底。",
+          fatal_scene: "高发翻车现场通常发生在别人开始认真、开始追问关系定义、或者你意识到一旦落地就没那么梦幻的时候。",
+          cursed_talent: "你的诅咒型天赋是能让不确定看起来比确定更甜，让人明知没名分也还想继续排队。",
+          survival_tip: "别再拿氛围感替代答案。你不缺魅力，你缺的是别让温柔永远只停在待定状态。"
+        },
+        VBFR: {
+          relationship_hazard: "你最危险的地方，是会把危险误认成命运，把高浓度误认成真爱，然后主动把局势往更失控处送。",
+          self_destruct_mode: "你自毁时像给烂冲动加史诗配乐，越是快翻车，越觉得这才配得上自己的情绪声量。",
+          fatal_scene: "高发翻车现场通常发生在你觉得“这次终于够真、够烈、够命中注定”的时刻，因为那往往也是最失控的时刻。",
+          cursed_talent: "你的诅咒型天赋是能把混乱讲成神谕，把危险剪成浪漫，最后连自己都信了那是一场天降宿命。",
+          survival_tip: "别再拿燃烧感当爱情证明。不是所有能让你心跳失控的东西，都值得你把人生一起赔进去。"
+        },
+        VSTI: {
+          relationship_hazard: "你关系里的事故点，是表面很好哄，实际每一笔没被接住的委屈都在心里默默滚利息。",
+          self_destruct_mode: "你自毁时不会明着翻脸，而是会变得更甜、更软、更像没事，直到对方完全意识不到自己已经欠了你整本账。",
+          fatal_scene: "高发翻车现场通常出现在你感到偏爱不够绝对、哄得不够到位、或者自己被放到普通顺位的时候。",
+          cursed_talent: "你的诅咒型天赋是能把缺爱伪装成可爱，把控制欲伪装成乖巧，让别人心甘情愿交更多情绪税。",
+          survival_tip: "别总等别人主动补票。你真正想要的不是多一轮哄，是别再把需求都包成甜口暗号。"
+        },
+        VSTR: {
+          relationship_hazard: "你最大的关系病不是回头，而是笑着回头，还要顺手核算当年那场情绪投入到底有没有亏本。",
+          self_destruct_mode: "你自毁时会带着礼貌、风度和一点玩笑感重启旧账，表面像轻描淡写，实则每句都在清算。",
+          fatal_scene: "高发翻车现场通常发生在旧人出现、旧事被提、或者你突然意识到自己当年那口气一直没真正咽下去的时候。",
+          cursed_talent: "你的诅咒型天赋是能把复仇做得像社交，像闲聊，像顺手举杯，直到别人反应过来时已经输了好几轮。",
+          survival_tip: "别总拿体面当刀鞘。真正放过自己，不是算得更漂亮，而是终于不想再结那笔账。"
+        },
+        VSFI: {
+          relationship_hazard: "你关系里的事故，是会把旧剧情留成精神遗产，哪怕早就翻页了，也还需要它持续证明自己曾经投入得有价值。",
+          self_destruct_mode: "你自毁时最常见的方式不是回头，而是默默把旧物、旧歌、旧照片重新摆出来，让自己再掉进去一次。",
+          fatal_scene: "高发翻车现场通常出现在触景生情、旧人更新、或者你突然觉得如果不再复盘就像当年白疯了一样的时候。",
+          cursed_talent: "你的诅咒型天赋是能把怀旧感养成慢性依赖，越是旧剧情，越容易被你讲成只有自己懂的史诗。",
+          survival_tip: "别再拿怀念给自己续命。你需要的是新的剧情密度，不是把旧片反复重映到烂熟。"
+        },
+        VSFR: {
+          relationship_hazard: "你关系里最吓人的地方，是明明还在意，却偏要用最淡的语气、最轻的字数、最冷的态度把人在意死。",
+          self_destruct_mode: "你自毁时不会大张旗鼓，而是会持续轻描淡写地下狠手，顺便把自己也困在那股说不清的怨气里。",
+          fatal_scene: "高发翻车现场通常发生在你以为自己已经抽身，却发现某个旧人、旧句子、旧情绪还能精准扎到你的时候。",
+          cursed_talent: "你的诅咒型天赋是把情绪压缩得极其锋利，别人只听见一句淡话，却会被你那点残忍后劲拖很久。",
+          survival_tip: "别总把狠话说得像没事。你该练的不是更会藏刺，而是承认自己其实没你表现得那么无所谓。"
+        }
+      };
+
+      const FACTION_META = {
+        AB: { label: "冷奢求虐派", desc: "把缺爱、控制欲和高级包装绑在一起，越体面越危险。" },
+        AS: { label: "清醒尸检派", desc: "擅长把关系拆解成证词、旧案和延迟审判。" },
+        VB: { label: "纵火事故派", desc: "不靠稳定获得存在感，专靠情绪浓度和翻车现场续命。" },
+        VS: { label: "甜毒遗梦派", desc: "外表柔软，内里留毒，最会把旧情绪养成长期库存。" }
+      };
+
+      const SAMPLE_RECORDS = buildSampleRecords();
+      const state = loadState();
+      const root = document.getElementById("app");
+      const toast = document.getElementById("toast");
+      let sceneTimer = null;
+      let sceneTransitionToken = 0;
+
+      ensureRoute();
+      renderApp();
+
+      document.addEventListener("click", handleClick);
+      document.addEventListener("input", handleInput);
+      window.addEventListener("hashchange", () => {
+        state.route = window.location.hash || ROUTES.quick;
+        renderApp();
+      });
+
+      function buildSampleRecords() {
+        return Object.entries(TYPE_BLUEPRINTS).map(([code, blueprint], index) => {
+          return synthesizeLocalRecord(blueprint.sampleA, blueprint.sampleB, "sample-" + String(index + 1).padStart(2, "0"), code);
+        });
+      }
+
+      function getDefaultState() {
+        return {
+          route: ROUTES.quick,
+          aSelected: [],
+          bSelected: [],
+          apiConfig: {
+            baseUrl: "https://api.openai.com/v1",
+            apiKey: "",
+            model: "gpt-4.1-mini",
+            temperatureParse: 0.9,
+            temperatureAbti: 1.2,
+            temperatureVideo: 1.3
+          },
+          result: {
+            parseResult: null,
+            abtiResult: null,
+            profileResult: null,
+            videoResult: null,
+            rawResponses: { parse: null, abti: null, profile: null, video: null }
+          },
+          status: "idle",
+          activeStep: "",
+          errorMessage: "",
+          showApiKey: false,
+          currentId: SAMPLE_RECORDS[0].id,
+          history: [],
+          stepLogs: getFreshLogs(),
+          sceneIndex: 0
+        };
+      }
+
+      function getFreshLogs() {
+        return [
+          { step: "parse", status: "pending", durationMs: null, message: "等待 A+B 选词" },
+          { step: "abti", status: "pending", durationMs: null, message: "等待类型判定" },
+          { step: "video", status: "pending", durationMs: null, message: "等待画像判词生成" }
+        ];
+      }
+
+      function loadState() {
+        const next = getDefaultState();
+        const savedConfig = readStorage(STORAGE_KEYS.config);
+        const savedUI = readStorage(STORAGE_KEYS.ui);
+        const savedResult = readStorage(STORAGE_KEYS.result);
+        const savedHistory = readStorage(STORAGE_KEYS.history);
+        if (savedConfig) next.apiConfig = savedConfig;
+        if (savedUI) {
+          next.aSelected = Array.isArray(savedUI.aSelected) ? savedUI.aSelected : next.aSelected;
+          next.bSelected = Array.isArray(savedUI.bSelected) ? savedUI.bSelected : next.bSelected;
+          next.currentId = savedUI.currentId || next.currentId;
+        }
+        if (savedResult) next.result = savedResult;
+        if (Array.isArray(savedHistory)) next.history = savedHistory;
+        return next;
+      }
+
+      function readStorage(key) {
+        try {
+          const raw = localStorage.getItem(key);
+          return raw ? JSON.parse(raw) : null;
+        } catch {
+          return null;
+        }
+      }
+
+      function persist() {
+        localStorage.setItem(STORAGE_KEYS.config, JSON.stringify(state.apiConfig));
+        localStorage.setItem(STORAGE_KEYS.ui, JSON.stringify({
+          aSelected: state.aSelected,
+          bSelected: state.bSelected,
+          currentId: state.currentId
+        }));
+        localStorage.setItem(STORAGE_KEYS.result, JSON.stringify(state.result));
+        localStorage.setItem(STORAGE_KEYS.history, JSON.stringify(state.history));
+      }
+
+      function ensureRoute() {
+        const values = Object.values(ROUTES);
+        if (!values.includes(window.location.hash)) window.location.hash = ROUTES.quick;
+        state.route = window.location.hash || ROUTES.quick;
+      }
+
+      function getRecords() {
+        return state.history.concat(SAMPLE_RECORDS).map(hydrateRecord);
+      }
+
+      function getAtlasRecords() {
+        const unique = new Map();
+        getRecords().forEach(record => {
+          if (!record || !record.abti || !record.abti.code) return;
+          if (!unique.has(record.abti.code)) unique.set(record.abti.code, record);
+        });
+        return Array.from(unique.values());
+      }
+
+      function getCurrentRecord() {
+        const records = getRecords();
+        return records.find(item => item.id === state.currentId) || records[0];
+      }
+
+      function renderApp() {
+        const current = getCurrentRecord();
+        root.innerHTML = `
+          <div class="shell">
+            <aside class="sidebar glass">
+              <div class="brand">
+                <p class="eyebrow">A+B Type Index</p>
+                <h1>ABTI</h1>
+                <p class="desc">A 是你端出来的样子，B 是你私下最离谱的那面。两边一拼，就知道你到底是哪种炸弹。</p>
+              </div>
+              <nav class="nav-list">
+                ${NAV_ITEMS.map(item => {
+                  const route = ROUTES[item.key];
+                  return `<button class="nav-item ${state.route === route ? "active" : ""}" data-action="navigate" data-route="${route}"><strong>${item.label}</strong><span>${item.sub}</span></button>`;
+                }).join("")}
+              </nav>
+              <div class="sidebar-card">
+                <p class="eyebrow">最短路径</p>
+                <p class="desc">选 3 个 A 词、选 3 个 B 词、直接出结果。没有抽牌仪式，没有铺垫，全靠一句狠话把你钉死。</p>
+              </div>
+              <button class="primary-btn" data-action="generate-now">A+B 立即生成</button>
+            </aside>
+
+            <section class="main glass">
+              <header class="topbar">
+                <div>
+                  <p class="eyebrow">${escapeHtml(getRouteMeta().eyebrow)}</p>
+                  <h2>${escapeHtml(getRouteMeta().title)}</h2>
+                  <p class="desc">${escapeHtml(getRouteMeta().desc)}</p>
+                </div>
+                <div class="status-pill">
+                  <span class="status-dot ${state.status === "error" ? "error" : ""}"></span>
+                  <div>
+                    <strong>${escapeHtml(getStatusText())}</strong>
+                    <div class="tiny">${escapeHtml(state.activeStep ? "当前步骤：" + getStepLabel(state.activeStep) : "不接模型也能本地出狠话")}</div>
+                  </div>
+                </div>
+              </header>
+              <div class="scroll">
+                <section class="page ${state.route === ROUTES.quick ? "active" : ""}">${renderQuick()}</section>
+                <section class="page ${state.route === ROUTES.reveal ? "active" : ""}">${renderReveal(current)}</section>
+                <section class="page ${state.route === ROUTES.atlas ? "active" : ""}">${renderAtlas()}</section>
+                <section class="page ${state.route === ROUTES.studio ? "active" : ""}">${renderStudio(current)}</section>
+              </div>
+            </section>
+
+            <aside class="rail glass">${renderRail(current)}</aside>
+          </div>
+        `;
+        persist();
+        clearSceneLoop();
+      }
+
+      function getRouteMeta() {
+        switch (state.route) {
+          case ROUTES.reveal:
+            return { eyebrow: "Reveal", title: "揭晓页", desc: "这页不装报告感，直接把你的 ABTI 判词、人物画像、反差和翻车方式摊开讲。" };
+          case ROUTES.atlas:
+            return { eyebrow: "Atlas", title: "类型图鉴", desc: "16 型不只给代码，还给恶搞画像、自嘲弹幕和反差反转，像刷离谱人格档案。" };
+          case ROUTES.studio:
+            return { eyebrow: "Studio", title: "工作台", desc: "接模型后，ABTI 判词和人物画像会更毒、更像热评区最会阴阳怪气的那个人写的。" };
+          default:
+            return { eyebrow: "Quick Test", title: "极速速测", desc: "A 组选词，B 组选词，立刻出 A+B 结合的 ABTI。交互压到最短，不跟你讲废话。" };
+        }
+      }
+
+      function getStatusText() {
+        if (state.status === "running") return "正在组织狠话";
+        if (state.status === "error") return "这次裁决翻车了";
+        if (state.status === "success") return "结果已就位";
+        if (state.apiConfig.apiKey) return "可切换模型增强模式";
+        return "当前为本地极速模式";
+      }
+
+      function renderQuick() {
+        return `
+          <div class="stack">
+            <section class="hero">
+              <p class="eyebrow">Fast Ritual</p>
+              <h3>把你表面那套选出来，再把你私下最离谱的毛病选出来，然后看看 A+B 拼出来的你有多难评。</h3>
+              <p class="desc">A 组是别人以为你是什么，B 组是你自己最怕被说中的那一面。两边凑齐，ABTI 才开始真正发疯。</p>
+              <div class="hero-row">
+                <span class="choice-chip">A 已选 ${state.aSelected.length} / 3</span>
+                <span class="choice-chip">B 已选 ${state.bSelected.length} / 3</span>
+                <button class="ghost-btn" data-action="random-both">随机一组</button>
+                <button class="ghost-btn" data-action="clear-all">全部清空</button>
+              </div>
+            </section>
+
+            <section class="quick-grid">
+              <article class="pick-panel">
+                <div class="pick-head">
+                  <div>
+                    <p class="eyebrow">A 面</p>
+                    <div class="section-number">A</div>
+                    <p class="tiny">这是你平时端出来的样子。选 3 个最像你对外营业的人设。</p>
+                  </div>
+                  <div class="mini-row">
+                    <span class="counter">${state.aSelected.length} / 3</span>
+                    <button class="ghost-btn" data-action="random-a">命运代抽</button>
+                  </div>
+                </div>
+                <div class="quick-chips">
+                  ${A_KEYWORDS.map(item => `<button class="quick-chip ${state.aSelected.includes(item.label) ? "active" : ""}" data-action="toggle-a" data-value="${escapeAttr(item.label)}">${escapeHtml(item.label)}</button>`).join("")}
+                </div>
+                <div class="chip-row">
+                  ${state.aSelected.length ? state.aSelected.map(item => `<span class="chip">${escapeHtml(item)}</span>`).join("") : `<span class="tiny">还没选。别装清醒，挑最会骗人的那几个。</span>`}
+                </div>
+              </article>
+
+              <article class="pick-panel">
+                <div class="pick-head">
+                  <div>
+                    <p class="eyebrow">B 面</p>
+                    <div class="section-number">B</div>
+                    <p class="tiny">这是你私下最离谱的那部分。选 3 个最容易让你翻车的毛病。</p>
+                  </div>
+                  <div class="mini-row">
+                    <span class="counter">${state.bSelected.length} / 3</span>
+                    <button class="ghost-btn" data-action="random-b">命运代抽</button>
+                  </div>
+                </div>
+                <div class="quick-chips">
+                  ${B_KEYWORDS.map(item => `<button class="quick-chip ${state.bSelected.includes(item.label) ? "active" : ""}" data-action="toggle-b" data-value="${escapeAttr(item.label)}">${escapeHtml(item.label)}</button>`).join("")}
+                </div>
+                <div class="chip-row">
+                  ${state.bSelected.length ? state.bSelected.map(item => `<span class="chip">${escapeHtml(item)}</span>`).join("") : `<span class="tiny">还没选。把你最想藏的那层破绽挑出来。</span>`}
+                </div>
+              </article>
+            </section>
+
+            <section class="summary-bar">
+              <div class="pick-row">
+                <strong>当前组合：</strong>
+                <span class="mini-tag">A：${escapeHtml(state.aSelected.join(" / ") || "未完成")}</span>
+                <span class="mini-tag">B：${escapeHtml(state.bSelected.join(" / ") || "未完成")}</span>
+              </div>
+              <div class="action-row">
+                <button class="primary-btn" data-action="generate-now" ${canGenerate() ? "" : "disabled"}>生成 A+B 的 ABTI</button>
+                <button class="ghost-btn" data-action="navigate" data-route="${ROUTES.atlas}">先看离谱图鉴</button>
+              </div>
+            </section>
+
+            ${renderQuickPreview()}
+          </div>
+        `;
+      }
+
+      function renderQuickPreview() {
+        const preview = getLivePreview();
+        return `
+          <section class="panel">
+            <div class="section-title"><h4>实时预判</h4><span class="tiny">边选边出画像，先看看自己大概要被怎么损。</span></div>
+            <section class="stats-grid">
+              <div class="stat-card"><strong>当前代号</strong><div class="meta">${escapeHtml(preview.code)}</div></div>
+              <div class="stat-card"><strong>当前走向</strong><div class="meta">${escapeHtml(preview.typeName)}</div></div>
+              <div class="stat-card"><strong>伪画像</strong><div class="meta">${escapeHtml(preview.portrait)}</div></div>
+              <div class="stat-card"><strong>朋友锐评</strong><div class="meta">${escapeHtml(preview.friendReview)}</div></div>
+            </section>
+            <div class="scene-list" style="margin-top:18px">
+              <div class="scene-card"><strong>预热标题</strong><div class="meta">${escapeHtml(preview.headline)}</div></div>
+              <div class="scene-card"><strong>反差反转</strong><div class="meta">${escapeHtml(preview.contrastTwist)}</div></div>
+            </div>
+          </section>
+        `;
+      }
+
+      function renderReveal(record) {
+        const narrative = buildRevealNarrative(record);
+        const faction = getFactionMeta(record.abti.code);
+        return `
+          <div class="stack">
+            <section class="result-grid">
+              <section class="panel portrait-panel faction-${escapeAttr(faction.key)}">
+                <div class="section-title"><h4>ABTI 画像</h4><button class="ghost-btn" data-action="copy-current">复制结果</button></div>
+                <div class="portrait-frame faction-${escapeAttr(faction.key)}">
+                  <div class="faction-sigil">${escapeHtml(faction.label)}</div>
+                  <img class="portrait-image" src="${escapeAttr(record.profile.portrait_url)}" alt="${escapeAttr(record.profile.portrait_alt)}">
+                  <div class="frame-bloom"></div>
+                </div>
+                <div class="chip-row">
+                  <span class="faction-chip">${escapeHtml(faction.label)}</span>
+                  <span class="choice-chip">${escapeHtml(record.abti.code)}</span>
+                  <span class="choice-chip">${escapeHtml(record.abti.type_name)}</span>
+                  <span class="choice-chip">${escapeHtml(record.abti.meme_label)}</span>
+                </div>
+                <div class="faction-note">${escapeHtml(faction.desc)}</div>
+                <div class="portrait-note">${escapeHtml(record.profile.portrait_caption)}</div>
+                <div class="danger-line">${escapeHtml(record.abti.kill_shot)}</div>
+                <div class="scene-card"><strong>A+B 合成原因</strong><div class="meta">${escapeHtml(record.abti.fuse_statement)}</div></div>
+              </section>
+
+              <div class="result-side">
+                <section class="hero">
+                  <p class="eyebrow">ABTI Verdict</p>
+                  <h3>${escapeHtml(record.abti.bait_title)}</h3>
+                  <div class="headline">${escapeHtml(record.abti.roast_line)}</div>
+                  <div class="chip-row">
+                    <span class="faction-chip">${escapeHtml(faction.label)}</span>
+                    <span class="mini-tag">A：${escapeHtml(record.parse.a_selected.join(" / "))}</span>
+                    <span class="mini-tag">B：${escapeHtml(record.parse.b_selected.join(" / "))}</span>
+                  </div>
+                </section>
+                <section class="panel narrative-card">
+                  <div class="section-title"><h4>一眼看穿</h4></div>
+                  <p class="story-copy">${escapeHtml(narrative.firstLook)}</p>
+                </section>
+                <section class="panel narrative-card">
+                  <div class="section-title"><h4>表里反差</h4></div>
+                  <p class="story-copy">${escapeHtml(narrative.duality)}</p>
+                </section>
+                <section class="panel narrative-card">
+                  <div class="section-title"><h4>关系事故</h4></div>
+                  <p class="story-copy">${escapeHtml(narrative.relationship)}</p>
+                </section>
+                <section class="panel narrative-card">
+                  <div class="section-title"><h4>最后裁决</h4></div>
+                  <div class="verdict-quote">${escapeHtml(record.abti.kill_shot)}</div>
+                  <p class="story-copy">${escapeHtml(narrative.finalVerdict)}</p>
+                </section>
+              </div>
+            </section>
+          </div>
+        `;
+      }
+
+      function renderAtlas() {
+        return `
+          <div class="stack">
+            <section class="panel">
+              <div class="section-title"><h4>图鉴说明</h4><span class="tiny">像刷离谱人格档案一样，看每一种 ABTI 是怎么自我打脸的。</span></div>
+              <p class="desc">这里每一张卡都来自一组 A+B 组合。点开任意卡片，就能直接跳到对应判词页；每张卡都带恶搞画像、自嘲弹幕和反差反转。</p>
+            </section>
+            <section class="atlas-grid">
+              ${getAtlasRecords().map(record => {
+                const faction = getFactionMeta(record.abti.code);
+                return `
+                <button class="atlas-card faction-${escapeAttr(faction.key)} ${state.currentId === record.id ? "active" : ""}" data-action="open-record" data-id="${record.id}">
+                  <p class="eyebrow">${record.source === "generated" ? "刚刚生成" : "示例样本"}</p>
+                  <div class="thumb-frame faction-${escapeAttr(faction.key)}">
+                    <img class="thumb-image" src="${escapeAttr(record.profile.thumb_url || record.profile.portrait_url)}" alt="${escapeAttr(record.profile.portrait_alt)}">
+                    <div class="thumb-glow"></div>
+                  </div>
+                  <div class="atlas-code">${escapeHtml(record.abti.code)}</div>
+                  <div class="chip-row">
+                    <span class="faction-chip">${escapeHtml(faction.label)}</span>
+                    <span class="chip">${escapeHtml(record.abti.meme_label)}</span>
+                  </div>
+                  <strong>${escapeHtml(record.abti.type_name)}</strong>
+                  <p class="cover-hook">${escapeHtml(record.abti.kill_shot)}</p>
+                  <p class="tiny" style="margin:10px 0 12px">${escapeHtml(record.abti.bait_title)}</p>
+                  <div class="faction-note">${escapeHtml(faction.desc)}</div>
+                  <div class="tiny" style="margin-top:12px">${escapeHtml(record.profile.portrait_caption)}</div>
+                  <div class="scene-list" style="margin-top:12px">
+                    <div class="scene-card"><strong>恶搞画像</strong><div class="tiny">${escapeHtml(record.profile.user_portrait)}</div></div>
+                    <div class="scene-card"><strong>自嘲弹幕</strong><div class="tiny">${escapeHtml(record.profile.self_mockery)}</div></div>
+                    <div class="scene-card"><strong>反差反转</strong><div class="tiny">${escapeHtml(record.profile.contrast_twist)}</div></div>
+                  </div>
+                </button>
+              `;
+              }).join("")}
+            </section>
+          </div>
+        `;
+      }
+
+      function renderStudio(record) {
+        return `
+          <div class="studio-grid">
+            <section class="panel">
+              <div class="section-title"><h4>模型增强</h4><span class="tiny">不填 API Key 也能本地生成；填了以后文案会更炸。</span></div>
+              <div class="field-stack">
+                <div class="field">
+                  <label>当前 A 词</label>
+                  <div class="chip-row">${state.aSelected.length ? state.aSelected.map(item => `<span class="chip">${escapeHtml(item)}</span>`).join("") : `<span class="tiny">还没选。</span>`}</div>
+                </div>
+                <div class="field">
+                  <label>当前 B 词</label>
+                  <div class="chip-row">${state.bSelected.length ? state.bSelected.map(item => `<span class="chip">${escapeHtml(item)}</span>`).join("") : `<span class="tiny">还没选。</span>`}</div>
+                </div>
+                <div class="field">
+                  <label>Base URL</label>
+                  <div class="input-shell"><input id="baseUrlInput" type="text" value="${escapeAttr(state.apiConfig.baseUrl)}" placeholder="https://api.openai.com/v1"></div>
+                </div>
+                <div class="field">
+                  <label>模型名</label>
+                  <div class="input-shell"><input id="modelInput" type="text" value="${escapeAttr(state.apiConfig.model)}" placeholder="gpt-4.1-mini"></div>
+                </div>
+                <div class="field">
+                  <label>API Key</label>
+                  <div class="input-shell">
+                    <input id="apiKeyInput" type="${state.showApiKey ? "text" : "password"}" value="${escapeAttr(state.apiConfig.apiKey)}" placeholder="sk-...">
+                    <button class="toggle-btn" data-action="toggle-key" type="button">${state.showApiKey ? "🙈" : "👁"}</button>
+                  </div>
+                </div>
+                <div class="field">
+                  <label>解析温度 ${Number(state.apiConfig.temperatureParse).toFixed(1)}</label>
+                  <div class="input-shell"><input id="tempParseInput" type="range" min="0.4" max="1.4" step="0.1" value="${state.apiConfig.temperatureParse}"></div>
+                </div>
+                <div class="field">
+                  <label>类型温度 ${Number(state.apiConfig.temperatureAbti).toFixed(1)}</label>
+                  <div class="input-shell"><input id="tempAbtiInput" type="range" min="0.7" max="1.6" step="0.1" value="${state.apiConfig.temperatureAbti}"></div>
+                </div>
+                <div class="field">
+                  <label>切片温度 ${Number(state.apiConfig.temperatureVideo).toFixed(1)}</label>
+                  <div class="input-shell"><input id="tempVideoInput" type="range" min="0.8" max="1.7" step="0.1" value="${state.apiConfig.temperatureVideo}"></div>
+                </div>
+              </div>
+              <div class="action-grid" style="margin-top:18px">
+                <button class="action-btn primary" data-action="generate-now" ${canGenerate() ? "" : "disabled"}>重新生成</button>
+                <button class="action-btn" data-action="random-both">随机一组</button>
+                <button class="action-btn" data-action="clear-all">全部清空</button>
+                <button class="action-btn" data-action="copy-current">复制当前结果</button>
+              </div>
+            </section>
+            <section class="stack">
+              <section class="panel">
+                <div class="section-title"><h4>链路状态</h4><span class="mini-tag">${escapeHtml(state.activeStep || "idle")}</span></div>
+                <div class="step-list">${renderLogs()}</div>
+                ${state.errorMessage ? `<p class="desc" style="color:#ffc1c1;margin-top:12px">${escapeHtml(state.errorMessage)}</p>` : ""}
+              </section>
+              <section class="stats-grid">
+                <div class="stat-card"><strong>当前代码</strong><div class="meta">${escapeHtml(record.abti.code)}</div></div>
+                <div class="stat-card"><strong>类型名</strong><div class="meta">${escapeHtml(record.abti.type_name)}</div></div>
+                <div class="stat-card"><strong>标题</strong><div class="meta">${escapeHtml(record.abti.bait_title)}</div></div>
+                <div class="stat-card"><strong>最毒一句</strong><div class="meta">${escapeHtml(record.abti.kill_shot)}</div></div>
+              </section>
+              <section class="stats-grid">
+                <div class="json-card">
+                  <div class="section-title"><h4>解析 JSON</h4></div>
+                  <div class="json-box"><pre>${escapeHtml(stringifyJson(state.result.parseResult))}</pre></div>
+                </div>
+                <div class="json-card">
+                  <div class="section-title"><h4>结果 JSON</h4></div>
+                  <div class="json-box"><pre>${escapeHtml(stringifyJson({ abti: state.result.abtiResult, profile: state.result.profileResult, cuts: state.result.videoResult }))}</pre></div>
+                </div>
+              </section>
+            </section>
+          </div>
+        `;
+      }
+
+      function renderRail(record) {
+        return `
+          <section class="rail-card">
+            <h4>当前类型</h4>
+            <div class="rail-item"><strong>${escapeHtml(record.abti.code)}</strong><div class="tiny">${escapeHtml(record.abti.type_name)}</div></div>
+            <div class="rail-item"><div class="tiny">${escapeHtml(record.abti.meme_label)}</div></div>
+          </section>
+          <section class="rail-card">
+            <h4>A+B 当前组合</h4>
+            <div class="rail-item"><strong>A 区</strong><div class="tiny">${escapeHtml(record.parse.a_selected.join(" / "))}</div></div>
+            <div class="rail-item"><strong>B 区</strong><div class="tiny">${escapeHtml(record.parse.b_selected.join(" / "))}</div></div>
+          </section>
+          <section class="rail-card">
+            <h4>狠话指南</h4>
+            <div class="rail-list">
+              <div class="rail-item"><strong>更毒</strong><div class="tiny">接模型后，标题和字幕会更像热评区阴阳怪气高赞。</div></div>
+              <div class="rail-item"><strong>更炸</strong><div class="tiny">图鉴和揭晓页都会补上恶搞画像、自嘲弹幕、反差反转这些更抓眼的内容。</div></div>
+              <div class="rail-item"><strong>更快</strong><div class="tiny">现在不需要抽牌，只用 A+B 两组关键词极速判定，还能边选边看实时预判。</div></div>
+            </div>
+          </section>
+        `;
+      }
+
+      function renderLogs() {
+        return state.stepLogs.map(item => {
+          const tail = item.durationMs ? item.durationMs + " ms" : item.status;
+          return `<div class="step-card ${item.status}"><strong>${getStepLabel(item.step)}</strong><div class="tiny">${escapeHtml(item.message)}</div><div class="tiny">${escapeHtml(tail)}</div></div>`;
+        }).join("");
+      }
+
+      function handleClick(event) {
+        const target = event.target.closest("[data-action]");
+        if (!target) return;
+        const action = target.getAttribute("data-action");
+
+        if (action === "navigate") {
+          window.location.hash = target.getAttribute("data-route");
+          return;
+        }
+
+        if (action === "toggle-a") {
+          toggleKeyword("a", target.getAttribute("data-value"));
+          return;
+        }
+
+        if (action === "toggle-b") {
+          toggleKeyword("b", target.getAttribute("data-value"));
+          return;
+        }
+
+        if (action === "random-both") {
+          state.aSelected = shuffle(A_KEYWORDS.map(item => item.label)).slice(0, 3);
+          state.bSelected = shuffle(B_KEYWORDS.map(item => item.label)).slice(0, 3);
+          renderApp();
+          showToast("已随机配好 A+B 组合");
+          return;
+        }
+
+        if (action === "random-a") {
+          fillRandomSide("a");
+          return;
+        }
+
+        if (action === "random-b") {
+          fillRandomSide("b");
+          return;
+        }
+
+        if (action === "clear-all") {
+          state.aSelected = [];
+          state.bSelected = [];
+          renderApp();
+          return;
+        }
+
+        if (action === "generate-now") {
+          runFlow();
+          return;
+        }
+
+        if (action === "prev-scene") {
+          shiftScene(-1);
+          return;
+        }
+
+        if (action === "next-scene") {
+          shiftScene(1);
+          return;
+        }
+
+        if (action === "jump-scene") {
+          jumpScene(Number(target.getAttribute("data-index")));
+          return;
+        }
+
+        if (action === "open-record") {
+          state.currentId = target.getAttribute("data-id");
+          state.sceneIndex = 0;
+          window.location.hash = ROUTES.reveal;
+          renderApp();
+          return;
+        }
+
+        if (action === "toggle-key") {
+          state.showApiKey = !state.showApiKey;
+          renderApp();
+          return;
+        }
+
+        if (action === "copy-current") {
+          copyCurrent();
+        }
+      }
+
+      function handleInput(event) {
+        if (!(event.target instanceof HTMLInputElement)) return;
+        const id = event.target.id;
+        if (id === "baseUrlInput") state.apiConfig.baseUrl = event.target.value;
+        if (id === "modelInput") state.apiConfig.model = event.target.value;
+        if (id === "apiKeyInput") state.apiConfig.apiKey = event.target.value;
+        if (id === "tempParseInput") state.apiConfig.temperatureParse = Number(event.target.value);
+        if (id === "tempAbtiInput") state.apiConfig.temperatureAbti = Number(event.target.value);
+        if (id === "tempVideoInput") state.apiConfig.temperatureVideo = Number(event.target.value);
+        persist();
+      }
+
+      function toggleKeyword(side, value) {
+        const key = side === "a" ? "aSelected" : "bSelected";
+        const list = state[key];
+        if (list.includes(value)) state[key] = list.filter(item => item !== value);
+        else if (list.length < 3) state[key] = list.concat(value);
+        else showToast("每边最多选 3 个词");
+        renderApp();
+      }
+
+      function fillRandomSide(side) {
+        const pool = side === "a" ? A_KEYWORDS : B_KEYWORDS;
+        const key = side === "a" ? "aSelected" : "bSelected";
+        state[key] = shuffle(pool.map(item => item.label)).slice(0, 3);
+        renderApp();
+        showToast((side === "a" ? "A" : "B") + " 面已命运代抽");
+      }
+
+      function canGenerate() {
+        return state.aSelected.length === 3 && state.bSelected.length === 3;
+      }
+
+      function getStepLabel(step) {
+        if (step === "parse") return "A+B 解析";
+        if (step === "abti") return "ABTI 判定";
+        if (step === "video") return "画像补刀";
+        return "待命中";
+      }
+
+      function updateLog(step, patch) {
+        state.stepLogs = state.stepLogs.map(item => item.step === step ? { ...item, ...patch } : item);
+      }
+
+      function resetRuntime() {
+        state.status = "idle";
+        state.activeStep = "";
+        state.errorMessage = "";
+        state.stepLogs = getFreshLogs();
+      }
+
+      async function runFlow() {
+        if (!canGenerate()) {
+          state.status = "error";
+          state.errorMessage = "A 组和 B 组都必须各选满 3 个关键词";
+          renderApp();
+          return;
+        }
+
+        if (!state.apiConfig.apiKey.trim()) {
+          const localRecord = synthesizeLocalRecord(state.aSelected, state.bSelected);
+          commitRecord(localRecord);
+          state.status = "success";
+          state.sceneIndex = 0;
+          window.location.hash = ROUTES.reveal;
+          renderApp();
+          showToast("已使用本地极速模式生成");
+          return;
+        }
+
+        resetRuntime();
+        state.status = "running";
+        renderApp();
+
+        try {
+          state.activeStep = "parse";
+          updateLog("parse", { status: "running", message: "正在拆解 A+B 组合的坏心眼结构" });
+          renderApp();
+          const parseStart = performance.now();
+          const parseResponse = await requestStructuredJson(buildParseMessages(), state.apiConfig.temperatureParse);
+          if (!hasParseShape(parseResponse.parsed)) throw new Error("解析结果缺少必要字段");
+          state.result.parseResult = parseResponse.parsed;
+          state.result.rawResponses.parse = parseResponse.rawText;
+          updateLog("parse", { status: "success", durationMs: Math.round(performance.now() - parseStart), message: "A+B 组合结构已拆完" });
+
+          state.activeStep = "abti";
+          updateLog("abti", { status: "running", message: "正在写最难听也最像的一句" });
+          renderApp();
+          const abtiStart = performance.now();
+          const abtiResponse = await requestStructuredJson(buildAbtiMessages(state.result.parseResult), state.apiConfig.temperatureAbti);
+          if (!hasAbtiShape(abtiResponse.parsed)) throw new Error("ABTI 结果缺少必要字段");
+          state.result.abtiResult = abtiResponse.parsed;
+          state.result.rawResponses.abti = abtiResponse.rawText;
+          updateLog("abti", { status: "success", durationMs: Math.round(performance.now() - abtiStart), message: "ABTI 标题和狠话已写好" });
+
+          state.activeStep = "video";
+          updateLog("video", { status: "running", message: "正在生成画像和补刀区" });
+          renderApp();
+          const videoStart = performance.now();
+          const profileResponse = await requestStructuredJson(buildVideoMessages(state.result.parseResult, state.result.abtiResult), state.apiConfig.temperatureVideo);
+          if (!hasVideoShape(profileResponse.parsed)) throw new Error("画像结果缺少必要字段");
+          state.result.profileResult = profileResponse.parsed.profile;
+          state.result.videoResult = profileResponse.parsed.video;
+          state.result.rawResponses.video = profileResponse.rawText;
+          updateLog("video", { status: "success", durationMs: Math.round(performance.now() - videoStart), message: "画像和补刀区已完成" });
+
+          const record = {
+            id: "generated-" + Date.now(),
+            source: "generated",
+            parse: structuredCloneData(state.result.parseResult),
+            abti: structuredCloneData(state.result.abtiResult),
+            profile: structuredCloneData(state.result.profileResult),
+            video: structuredCloneData(state.result.videoResult)
+          };
+          commitRecord(record);
+          state.status = "success";
+          state.activeStep = "";
+          state.sceneIndex = 0;
+          window.location.hash = ROUTES.reveal;
+          renderApp();
+          showToast("模型增强版已生成");
+        } catch (error) {
+          const message = error instanceof Error ? error.message : "生成失败，请稍后再试";
+          if (state.activeStep) updateLog(state.activeStep, { status: "error", message });
+          state.status = "error";
+          state.errorMessage = message;
+          state.activeStep = "";
+          renderApp();
+        }
+      }
+
+      function commitRecord(record) {
+        record = hydrateRecord(record);
+        state.currentId = record.id;
+        if (record.source === "generated") {
+          state.history.unshift(record);
+          state.history = state.history.slice(0, 10);
+        }
+        state.result.parseResult = structuredCloneData(record.parse);
+        state.result.abtiResult = structuredCloneData(record.abti);
+        state.result.profileResult = structuredCloneData(record.profile);
+        state.result.videoResult = structuredCloneData(record.video);
+      }
+
+      function shiftScene(delta) {
+        const record = getCurrentRecord();
+        if (!record || !record.video || !record.video.scenes || !record.video.scenes.length) return;
+        const total = record.video.scenes.length;
+        state.sceneIndex = (state.sceneIndex + delta + total) % total;
+        syncRevealScene(record, { animate: true });
+        restartSceneLoop(record);
+      }
+
+      function jumpScene(nextIndex) {
+        const record = getCurrentRecord();
+        if (!record || !record.video || !record.video.scenes || !record.video.scenes.length) return;
+        if (!Number.isInteger(nextIndex) || nextIndex < 0 || nextIndex >= record.video.scenes.length) return;
+        state.sceneIndex = nextIndex;
+        syncRevealScene(record, { animate: true });
+        restartSceneLoop(record);
+      }
+
+      function handleSceneLoop(record) {
+        clearSceneLoop();
+        if (state.route !== ROUTES.reveal || !record || !record.video || !record.video.scenes.length) return;
+        syncRevealScene(record, { animate: false, force: true });
+        sceneTimer = setInterval(() => {
+          state.sceneIndex = (state.sceneIndex + 1) % record.video.scenes.length;
+          syncRevealScene(record, { animate: true });
+        }, 2200);
+      }
+
+      function restartSceneLoop(record) {
+        if (state.route !== ROUTES.reveal) return;
+        handleSceneLoop(record);
+      }
+
+      function clearSceneLoop() {
+        if (sceneTimer) {
+          clearInterval(sceneTimer);
+          sceneTimer = null;
+        }
+      }
+
+      function syncRevealScene(record, options) {
+        if (state.route !== ROUTES.reveal || !record || !record.video || !record.video.scenes.length) return;
+        const settings = options || {};
+        const scene = record.video.scenes[Math.min(state.sceneIndex, record.video.scenes.length - 1)] || record.video.scenes[0];
+        const title = document.getElementById("videoSceneTitle");
+        const caption = document.getElementById("videoSceneCaption");
+        const meter = document.getElementById("sceneMeter");
+        const body = document.getElementById("videoBody");
+        const dots = document.querySelectorAll("[data-scene-dot]");
+
+        if (!title || !caption || !meter || !body || !dots.length) return;
+
+        const sceneKey = record.id + ":" + state.sceneIndex;
+        if (!settings.force && body.dataset.sceneKey === sceneKey) return;
+
+        const applyScene = () => {
+          body.dataset.sceneKey = sceneKey;
+          title.textContent = scene.title;
+          caption.textContent = scene.caption;
+          meter.textContent = (state.sceneIndex + 1) + " / " + record.video.scenes.length;
+          dots.forEach((dot, index) => {
+            dot.className = index < state.sceneIndex ? "done" : index === state.sceneIndex ? "active" : "";
+          });
+        };
+
+        if (!settings.animate) {
+          applyScene();
+          body.classList.remove("updating");
+          return;
+        }
+
+        const token = ++sceneTransitionToken;
+        body.classList.add("updating");
+        requestAnimationFrame(() => {
+          if (token !== sceneTransitionToken) return;
+          applyScene();
+          requestAnimationFrame(() => {
+            if (token !== sceneTransitionToken) return;
+            body.classList.remove("updating");
+          });
+        });
+      }
+
+      function synthesizeLocalRecord(aSelected, bSelected, forcedId, forcedCode) {
+        const parse = deriveParse(aSelected, bSelected);
+        const code = forcedCode || deriveCode(aSelected, bSelected);
+        const abti = deriveAbti(code, parse);
+        const profile = deriveProfile(code, parse, abti);
+        const video = deriveVideo(abti, profile, parse);
+        return {
+          id: forcedId || "local-" + hashString(aSelected.join("|") + "::" + bSelected.join("|")) + "-" + Date.now(),
+          source: forcedId ? "sample" : "generated",
+          parse,
+          abti,
+          profile,
+          video
+        };
+      }
+
+      function deriveParse(aSelected, bSelected) {
+        const aWords = aSelected.map(label => A_KEYWORDS.find(item => item.label === label)).filter(Boolean);
+        const bWords = bSelected.map(label => B_KEYWORDS.find(item => item.label === label)).filter(Boolean);
+        const aTop = aSelected[0] || "空白人设";
+        const bTop = bSelected[0] || "空白毛病";
+        return {
+          a_selected: aSelected.slice(),
+          b_selected: bSelected.slice(),
+          surface_impression: "别人眼里的你像“" + aTop + "”那挂：看着能控场，会收拾自己，也很会把情绪包装成体面动作。",
+          hidden_engine: "但你真正的发动机是“" + bTop + "”这类毛病：你不是没有底线，你只是上头的时候特别擅长亲手拆自己的底线。",
+          social_weapon: aWords.some(item => item.label === "嘴甜" || item.label === "会哄人") ? "你的社交武器是让人先舒服，再让人后知后觉地上钩。" : "你的社交武器是距离感。你不需要靠近太多，别人就会脑补你有多特别。",
+          crash_trigger: bWords.some(item => item.label === "爱失控" || item.label === "明知故犯" || item.label === "自毁冲动") ? "你的翻车触发器不是被伤害，是感觉太平静。越没戏，你越想自己加戏。" : "你的翻车触发器是被忽视和被误读。只要你觉得不够被偏爱，就会开始暗地里发作。"
+        };
+      }
+
+      function deriveCode(aSelected, bSelected) {
+        const score = { A: 0, V: 0, B: 0, S: 0, T: 0, F: 0, I: 0, R: 0 };
+        aSelected.forEach(label => {
+          const item = A_KEYWORDS.find(entry => entry.label === label);
+          if (!item) return;
+          Object.entries(item.score).forEach(([key, value]) => { score[key] += value; });
+        });
+        bSelected.forEach(label => {
+          const item = B_KEYWORDS.find(entry => entry.label === label);
+          if (!item) return;
+          Object.entries(item.score).forEach(([key, value]) => { score[key] += value; });
+        });
+        return [score.A >= score.V ? "A" : "V", score.B >= score.S ? "B" : "S", score.T >= score.F ? "T" : "F", score.I >= score.R ? "I" : "R"].join("");
+      }
+
+      function deriveAbti(code, parse) {
+        const fallback = {
+          type_name: code + " 型烂戏制造机",
+          meme_label: "不翻车就不甘心",
+          bait_title: "你最难评的地方，是明明知道哪种选择会炸，还总想看看能不能把它炸得更漂亮。",
+          roast_line: "你不是没有判断力，你只是特别愿意拿判断力给自己的烂情绪当打光师。",
+          kill_shot: "别人把关系当日子过，你把关系当素材剪。"
+        };
+        const base = TYPE_BLUEPRINTS[code] || fallback;
+        const aTone = code.startsWith("A") ? "体面控场" : "氛围放电";
+        const bTone = code.includes("B") ? "硬碰硬的较劲心" : "缺爱式的内耗欲";
+        const cTone = code.includes("T") ? "算计感和分寸感" : "情绪感和上头感";
+        const dTone = code.endsWith("R") ? "延迟补刀" : "即时脑补";
+        return {
+          code,
+          type_name: base.type_name,
+          bait_title: base.bait_title,
+          roast_line: base.roast_line,
+          meme_label: base.meme_label,
+          kill_shot: base.kill_shot,
+          fuse_statement: "A 面的“" + parse.a_selected.join(" / ") + "”把你包装成" + aTone + "，B 面的“" + parse.b_selected.join(" / ") + "”又把你推向" + bTone + "，再叠上" + cTone + "和" + dTone + "，所以最后才会合成这个 " + code + "。"
+        };
+      }
+
+      function deriveProfile(code, parse, abti) {
+        const portrait = buildPortraitAsset(code, abti, parse);
+        const blueprint = PROFILE_BLUEPRINTS[code] || {};
+        const outcome = OUTCOME_BLUEPRINTS[code] || {};
+        return {
+          public_mask: parse.surface_impression,
+          private_face: parse.hidden_engine,
+          relationship_hazard: outcome.relationship_hazard || (code.includes("B") ? "你一进关系就忍不住想试探、较劲、确认自己值不值得被追着偏爱。" : "你在关系里最大的问题不是作，是太会忍，忍到最后整个人变成一颗延时炸弹。"),
+          self_destruct_mode: outcome.self_destruct_mode || (code.endsWith("R") ? "你翻车时不是爆哭，是突然冷掉、记仇、开始隔夜补刀。" : "你翻车时最爱做的，是嘴硬、脑补、深夜自己把自己盘到发热。"),
+          fatal_scene: outcome.fatal_scene || (code.startsWith("V") ? "高发翻车现场通常出现在你觉得无聊、没戏、没火花的那一刻，因为你会亲手把局面搞刺激。" : "高发翻车现场通常出现在你觉得自己没被看见、没被偏爱、没被认真接住的时候。"),
+          cursed_talent: outcome.cursed_talent || (code.includes("T") ? "你的诅咒型天赋是能把任何局面控出戏剧张力。坏消息是你连自己都不放过。" : "你的诅咒型天赋是能把情绪氛围推到最满。坏消息是你经常把自己也裹进去。"),
+          survival_tip: outcome.survival_tip || (code.startsWith("A") ? "别再拿体面拖延真心。你不是不在乎，你只是太怕显得自己先输。" : "别再把刺激当心动。你不是每次都在遇见命运，你大多数时候只是在给事故找新场地。"),
+          user_portrait: blueprint.user_portrait || ("像那种表面靠“" + (parse.a_selected[0] || "体面") + "”维持人设，私下却会被“" + (parse.b_selected[0] || "嘴硬") + "”拖进烂情绪循环的人，越想装稳越容易露馅。"),
+          friend_review: blueprint.friend_review || (code.includes("B") ? "朋友锐评：你不是在谈关系，你是在抢控制权，顺便再赌谁先破防。" : "朋友锐评：你不是温柔，你只是更会把委屈塞进体面里，等别人自己猜错。"),
+          self_mockery: blueprint.self_mockery || (code.startsWith("A") ? "自嘲弹幕：我不是高冷，我只是把丢脸和求关注都包进了高级包装里。" : "自嘲弹幕：我不是恋爱脑，我只是特别会给事故加氛围、给上头写旁白。"),
+          contrast_twist: blueprint.contrast_twist || (code.endsWith("R") ? "反差反转：白天像情绪稳定样板，夜里像隔夜记仇审判官，越安静越说明你在算账。" : "反差反转：看着像没事人，实际上已经把一句话脑补、重播、内耗了十遍。"),
+          portrait_url: portrait.url,
+          thumb_url: portrait.thumb_url,
+          portrait_alt: portrait.alt,
+          portrait_prompt: portrait.prompt,
+          portrait_caption: blueprint.portrait_caption || portrait.caption
+        };
+      }
+
+      function deriveVideo(abti, profile, parse) {
+        return {
+          scenes: [
+            {
+              title: abti.type_name,
+              caption: abti.bait_title
+            },
+            {
+              title: "表面看起来像人，私下其实像事故",
+              caption: profile.public_mask
+            },
+            {
+              title: "你最容易翻车的方式",
+              caption: profile.self_destruct_mode
+            },
+            {
+              title: "最后补刀：别装了，这就是你",
+              caption: abti.kill_shot + " " + profile.survival_tip
+            }
+          ]
+        };
+      }
+
+      async function requestStructuredJson(messages, temperature) {
+        const response = await fetch(buildChatCompletionUrl(state.apiConfig.baseUrl), {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + state.apiConfig.apiKey.trim()
+          },
+          body: JSON.stringify({
+            model: state.apiConfig.model.trim(),
+            messages,
+            temperature,
+            response_format: { type: "json_object" }
+          })
+        });
+        const raw = await response.text();
+        if (!response.ok) throw new Error("接口请求失败（" + response.status + "）：" + raw.slice(0, 220));
+        let payload;
+        try {
+          payload = JSON.parse(raw);
+        } catch {
+          throw new Error("接口返回的不是有效 JSON");
+        }
+        const content = payload?.choices?.[0]?.message?.content;
+        if (!content) throw new Error("模型没有返回可解析内容");
+        return { rawText: content, parsed: JSON.parse(extractJsonString(content)) };
+      }
+
+      function buildChatCompletionUrl(baseUrl) {
+        const normalized = String(baseUrl || "").trim().replace(/\/+$/, "");
+        if (!normalized) throw new Error("请先填写 Base URL");
+        return /\/chat\/completions$/i.test(normalized) ? normalized : normalized + "/chat/completions";
+      }
+
+      function extractJsonString(content) {
+        const match = String(content).match(/```(?:json)?\s*([\s\S]*?)```/i);
+        return match && match[1] ? match[1].trim() : String(content).trim();
+      }
+
+      function buildParseMessages() {
+        return [
+          {
+            role: "system",
+            content: "你是一位擅长把用户关键词快速拆成人格结构的毒舌编辑。请根据 A 组和 B 组关键词，输出一份短、狠、准、可读的结构化解析。必须只输出严格 JSON，不要带解释。"
+          },
+          {
+            role: "user",
+            content: "A 组关键词：" + state.aSelected.join("、") + "。B 组关键词：" + state.bSelected.join("、") + "。输出严格 JSON：{\"a_selected\":[...],\"b_selected\":[...],\"surface_impression\":\"...\",\"hidden_engine\":\"...\",\"social_weapon\":\"...\",\"crash_trigger\":\"...\"}。要求像高赞热评总结，别温柔。"
+          }
+        ];
+      }
+
+      function buildAbtiMessages(parseResult) {
+        return [
+          {
+            role: "system",
+            content: "你是一位擅长写爆款人格判词的文案。请根据解析结果生成一个 ABTI 类型，语气要更毒、更炸、更有截图传播感，但不要对用户做真正恶意辱骂。必须只输出严格 JSON。"
+          },
+          {
+            role: "user",
+            content: "根据这份解析结果生成 ABTI：" + JSON.stringify(parseResult) + "。输出严格 JSON：{\"code\":\"4字母代码\",\"type_name\":\"类型名\",\"bait_title\":\"抓眼球标题\",\"roast_line\":\"毒舌判词\",\"meme_label\":\"标签短句\",\"kill_shot\":\"最毒一句\",\"fuse_statement\":\"A+B 为什么会合成这个 ABTI\"}。"
+          }
+        ];
+      }
+
+      function buildVideoMessages(parseResult, abtiResult) {
+        return [
+          {
+            role: "system",
+            content: "你是一位爆款人格判词编辑。请根据解析结果和 ABTI 类型输出配套的人物画像、补刀区文案，以及 4 段可拆分展示的切片文案。文风要像热搜切片和高赞热评，狠、炸、易传播，但不要真正恶意辱骂。必须只输出严格 JSON。"
+          },
+          {
+            role: "user",
+            content: "解析结果=" + JSON.stringify(parseResult) + "；ABTI=" + JSON.stringify(abtiResult) + "。输出严格 JSON：{\"profile\":{\"public_mask\":\"...\",\"private_face\":\"...\",\"relationship_hazard\":\"...\",\"self_destruct_mode\":\"...\",\"fatal_scene\":\"...\",\"cursed_talent\":\"...\",\"survival_tip\":\"...\",\"user_portrait\":\"...\",\"friend_review\":\"...\",\"self_mockery\":\"...\",\"contrast_twist\":\"...\"},\"video\":{\"scenes\":[{\"title\":\"...\",\"caption\":\"...\"},{\"title\":\"...\",\"caption\":\"...\"},{\"title\":\"...\",\"caption\":\"...\"},{\"title\":\"...\",\"caption\":\"...\"}]}}。"
+          }
+        ];
+      }
+
+      function getLivePreview() {
+        if (!state.aSelected.length && !state.bSelected.length) {
+          return {
+            code: "未成型",
+            typeName: "先选词再判你",
+            portrait: "先把 A 面和 B 面各挑出来，系统才知道该从哪种离谱方向给你立案。",
+            friendReview: "朋友锐评：先别装无辜，选完词再看你到底是哪一挂事故体质。",
+            headline: "现在还没法判你，因为你连最拿手的伪装和最常见的翻车点都还没交代。",
+            contrastTwist: "反差反转：还没开始选，但大概率已经在想要不要故意选得没那么像自己。"
+          };
+        }
+
+        if (canGenerate()) {
+          const code = deriveCode(state.aSelected, state.bSelected);
+          const previewRecord = synthesizeLocalRecord(state.aSelected, state.bSelected, "preview", code);
+          return {
+            code: previewRecord.abti.code,
+            typeName: previewRecord.abti.type_name,
+            portrait: previewRecord.profile.user_portrait,
+            friendReview: previewRecord.profile.friend_review,
+            headline: previewRecord.abti.bait_title,
+            contrastTwist: previewRecord.profile.contrast_twist
+          };
+        }
+
+        const aHint = state.aSelected.length ? "你正在把自己往“" + state.aSelected.join(" / ") + "”那挂包装。" : "A 面还没装出来。";
+        const bHint = state.bSelected.length ? "你真正容易翻车的入口已经暴露在“" + state.bSelected.join(" / ") + "”这边。" : "B 面还没露馅。";
+        return {
+          code: "预热中",
+          typeName: "半成品人格事故",
+          portrait: aHint + " " + bHint,
+          friendReview: "朋友锐评：你现在已经有点难评了，再补几刀就能正式立案。",
+          headline: "你的词还没选满，但已经能看出来，你不是单纯想被懂，你是想被懂得很夸张。",
+          contrastTwist: state.aSelected.length && state.bSelected.length ? "反差反转：嘴上还没承认，气质上已经开始暴露你会从哪种情绪口子塌房了。" : "反差反转：你连关键词都还在犹豫，说明你最懂怎么一边上头一边装清醒。"
+        };
+      }
+
+      function buildPortraitAsset(code, abti, parse) {
+        const theme = PORTRAIT_THEMES[code] || { c1: "#e5ba6c", c2: "#9a7dff", c3: "#120d18", accent: "人格事故", aura: "离谱气场", pose: "正面立像" };
+        const svg = createPortraitSvg(code, abti, parse, theme);
+        const thumbSvg = createPortraitThumbSvg(code, abti, parse, theme);
+        return {
+          prompt: theme.accent + " / " + theme.aura + " / " + theme.pose,
+          url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg),
+          thumb_url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(thumbSvg),
+          alt: abti.type_name + " 画像",
+          caption: "这张画像把“" + parse.a_selected.join(" / ") + "”的表面营业感和“" + parse.b_selected.join(" / ") + "”的翻车底色缝在了一张脸上。"
+        };
+      }
+
+      function createPortraitSvg(code, abti, parse, theme) {
+        const blueprint = PORTRAIT_BLUEPRINTS[code] || { scene: "mirror", body: "suit", hair: "slick-bob", face: "stoic", prop: "phone", layout: "center-tall", head: "sharp-oval", detail: "earring" };
+        const topA = escapeSvg(parse.a_selected[0] || "体面");
+        const topB = escapeSvg(parse.b_selected[0] || "嘴硬");
+        const typeName = escapeSvg(abti.type_name);
+        const meme = escapeSvg(abti.meme_label);
+        const accent = escapeSvg(theme.accent);
+        const aura = escapeSvg(theme.aura);
+        const pose = escapeSvg(theme.pose);
+        const codeSafe = escapeSvg(code);
+        const layout = getPortraitLayout(blueprint.layout);
+        const sceneSvg = buildPortraitScene(blueprint.scene, theme);
+        const bodySvg = buildPortraitBody(blueprint.body, theme, layout);
+        const headSvg = buildPortraitHead(blueprint.head, theme, layout);
+        const hairSvg = buildPortraitHair(blueprint.hair, theme, layout);
+        const faceSvg = buildPortraitFace(blueprint.face, theme, layout);
+        const propSvg = buildPortraitProp(blueprint.prop, theme, layout);
+        const detailSvg = buildPortraitDetail(blueprint.detail, theme, layout);
+        return `
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" role="img" aria-label="${typeName}">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="${theme.c3}"/>
+      <stop offset="55%" stop-color="${theme.c2}"/>
+      <stop offset="100%" stop-color="${theme.c1}"/>
+    </linearGradient>
+    <radialGradient id="halo" cx="50%" cy="28%" r="62%">
+      <stop offset="0%" stop-color="${theme.c1}" stop-opacity="0.95"/>
+      <stop offset="55%" stop-color="${theme.c2}" stop-opacity="0.34"/>
+      <stop offset="100%" stop-color="${theme.c3}" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="blur" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="16"/>
+    </filter>
+    <linearGradient id="skin" x1="0" y1="0" x2="0.7" y2="1">
+      <stop offset="0%" stop-color="#f7ddc8"/>
+      <stop offset="100%" stop-color="#ddbba4"/>
+    </linearGradient>
+    <linearGradient id="cloth" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="${theme.c3}"/>
+      <stop offset="100%" stop-color="${theme.c2}"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="1000" fill="url(#bg)"/>
+  <circle cx="${layout.haloX}" cy="${layout.haloY}" r="${layout.haloR}" fill="url(#halo)"/>
+  ${sceneSvg}
+  <g filter="url(#blur)" opacity="0.28">
+    <circle cx="180" cy="180" r="92" fill="${theme.c2}"/>
+    <circle cx="650" cy="780" r="120" fill="${theme.c1}"/>
+  </g>
+  <g opacity="0.95">
+    ${bodySvg}
+    ${headSvg}
+    ${hairSvg}
+    ${faceSvg}
+    ${detailSvg}
+    ${propSvg}
+  </g>
+  <g opacity="0.8" fill="${theme.c1}">
+    <rect x="${layout.tagLeft}" y="70" width="108" height="34" rx="17"/>
+    <rect x="${layout.tagRight}" y="94" width="150" height="34" rx="17"/>
+    <rect x="${layout.bottomTag}" y="834" width="188" height="34" rx="17"/>
+  </g>
+  <text x="${layout.tagLeft + 2}" y="92" fill="${theme.c3}" font-size="20" font-family="Arial, sans-serif" font-weight="700">${codeSafe}</text>
+  <text x="${layout.bottomTag + 36}" y="866" fill="${theme.c3}" font-size="20" font-family="Arial, sans-serif" font-weight="700">${accent}</text>
+  <text x="70" y="130" fill="rgba(255,240,222,0.82)" font-size="22" font-family="Arial, sans-serif">${aura}</text>
+  <text x="70" y="160" fill="rgba(255,240,222,0.62)" font-size="18" font-family="Arial, sans-serif">${pose}</text>
+  <text x="70" y="860" fill="rgba(255,240,222,0.82)" font-size="18" font-family="Arial, sans-serif">A ${topA} / B ${topB}</text>
+  <text x="70" y="905" fill="#fff4e7" font-size="54" font-family="Georgia, serif" font-weight="700">${typeName}</text>
+  <text x="70" y="944" fill="rgba(255,244,231,0.8)" font-size="26" font-family="Arial, sans-serif">${meme}</text>
+</svg>`.trim();
+      }
+
+      function createPortraitThumbSvg(code, abti, parse, theme) {
+        const blueprint = PORTRAIT_BLUEPRINTS[code] || { thumb: "headline-left" };
+        const safeType = escapeSvg(abti.type_name);
+        const safeCode = escapeSvg(code);
+        const safeLine = escapeSvg(abti.meme_label);
+        const safeA = escapeSvg((parse.a_selected || []).slice(0, 2).join(" / "));
+        const safeB = escapeSvg((parse.b_selected || []).slice(0, 2).join(" / "));
+        const hero = createPortraitSvg(code, abti, parse, theme);
+        const heroData = "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(hero);
+        const overlay = buildThumbOverlay(blueprint.thumb, theme, safeCode, safeType, safeLine, safeA, safeB);
+        return `
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" role="img" aria-label="${safeType}">
+  <defs>
+    <linearGradient id="thumbShade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="rgba(10,8,14,0.04)"/>
+      <stop offset="72%" stop-color="rgba(10,8,14,0.12)"/>
+      <stop offset="100%" stop-color="rgba(10,8,14,0.76)"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" rx="36" fill="${theme.c3}"/>
+  <image href="${heroData}" x="0" y="-46" width="800" height="760" preserveAspectRatio="xMidYMid slice"/>
+  <rect width="800" height="600" fill="url(#thumbShade)"/>
+  ${overlay}
+</svg>`.trim();
+      }
+
+      function getPortraitLayout(layout) {
+        const map = {
+          "center-tall": { headX: 396, headY: 296, headRX: 116, headRY: 144, torsoX: 276, torsoY: 388, torsoW: 250, torsoH: 346, bodyCX: 400, bodyCY: 750, bodyRX: 178, bodyRY: 132, haloX: 420, haloY: 252, haloR: 252, tagLeft: 72, tagRight: 580, bottomTag: 540 },
+          "right-lean": { headX: 458, headY: 286, headRX: 112, headRY: 140, torsoX: 334, torsoY: 376, torsoW: 248, torsoH: 340, bodyCX: 470, bodyCY: 742, bodyRX: 184, bodyRY: 130, haloX: 500, haloY: 244, haloR: 240, tagLeft: 74, tagRight: 560, bottomTag: 526 },
+          "left-side": { headX: 320, headY: 306, headRX: 108, headRY: 138, torsoX: 190, torsoY: 396, torsoW: 238, torsoH: 332, bodyCX: 312, bodyCY: 750, bodyRX: 170, bodyRY: 126, haloX: 286, haloY: 260, haloR: 236, tagLeft: 72, tagRight: 578, bottomTag: 520 },
+          "close-up": { headX: 408, headY: 292, headRX: 136, headRY: 162, torsoX: 250, torsoY: 412, torsoW: 288, torsoH: 360, bodyCX: 404, bodyCY: 770, bodyRX: 196, bodyRY: 142, haloX: 418, haloY: 254, haloR: 268, tagLeft: 74, tagRight: 566, bottomTag: 532 },
+          "front-solid": { headX: 400, headY: 288, headRX: 116, headRY: 144, torsoX: 280, torsoY: 388, torsoW: 248, torsoH: 352, bodyCX: 400, bodyCY: 756, bodyRX: 182, bodyRY: 136, haloX: 404, haloY: 246, haloR: 248, tagLeft: 74, tagRight: 566, bottomTag: 528 },
+          "back-turn": { headX: 448, headY: 302, headRX: 110, headRY: 136, torsoX: 312, torsoY: 394, torsoW: 254, torsoH: 348, bodyCX: 430, bodyCY: 760, bodyRX: 188, bodyRY: 136, haloX: 454, haloY: 260, haloR: 244, tagLeft: 72, tagRight: 562, bottomTag: 530 },
+          "seated": { headX: 390, headY: 292, headRX: 112, headRY: 138, torsoX: 244, torsoY: 428, torsoW: 258, torsoH: 280, bodyCX: 390, bodyCY: 786, bodyRX: 216, bodyRY: 126, haloX: 392, haloY: 264, haloR: 238, tagLeft: 72, tagRight: 574, bottomTag: 520 },
+          "half-body": { headX: 420, headY: 290, headRX: 116, headRY: 144, torsoX: 280, torsoY: 408, torsoW: 270, torsoH: 324, bodyCX: 426, bodyCY: 762, bodyRX: 188, bodyRY: 134, haloX: 434, haloY: 248, haloR: 248, tagLeft: 72, tagRight: 566, bottomTag: 536 },
+          "dynamic": { headX: 426, headY: 282, headRX: 112, headRY: 138, torsoX: 276, torsoY: 400, torsoW: 264, torsoH: 324, bodyCX: 412, bodyCY: 756, bodyRX: 196, bodyRY: 136, haloX: 442, haloY: 236, haloR: 258, tagLeft: 72, tagRight: 560, bottomTag: 532 },
+          "tilt": { headX: 430, headY: 290, headRX: 112, headRY: 138, torsoX: 286, torsoY: 404, torsoW: 272, torsoH: 322, bodyCX: 424, bodyCY: 760, bodyRX: 198, bodyRY: 134, haloX: 454, haloY: 244, haloR: 254, tagLeft: 72, tagRight: 562, bottomTag: 532 },
+          "sweet-close": { headX: 394, headY: 300, headRX: 124, headRY: 150, torsoX: 262, torsoY: 420, torsoW: 266, torsoH: 314, bodyCX: 398, bodyCY: 768, bodyRX: 194, bodyRY: 134, haloX: 396, haloY: 250, haloR: 260, tagLeft: 72, tagRight: 558, bottomTag: 530 },
+          "chaotic": { headX: 404, headY: 286, headRX: 126, headRY: 152, torsoX: 254, torsoY: 404, torsoW: 284, torsoH: 336, bodyCX: 404, bodyCY: 766, bodyRX: 202, bodyRY: 140, haloX: 408, haloY: 232, haloR: 270, tagLeft: 72, tagRight: 552, bottomTag: 532 },
+          "soft-front": { headX: 396, headY: 298, headRX: 120, headRY: 146, torsoX: 270, torsoY: 420, torsoW: 254, torsoH: 308, bodyCX: 396, bodyCY: 768, bodyRX: 192, bodyRY: 130, haloX: 396, haloY: 252, haloR: 248, tagLeft: 72, tagRight: 560, bottomTag: 530 },
+          "over-shoulder": { headX: 454, headY: 292, headRX: 112, headRY: 138, torsoX: 292, torsoY: 404, torsoW: 266, torsoH: 326, bodyCX: 432, bodyCY: 762, bodyRX: 194, bodyRY: 136, haloX: 468, haloY: 242, haloR: 252, tagLeft: 72, tagRight: 556, bottomTag: 532 },
+          "curl-seat": { headX: 362, headY: 302, headRX: 114, headRY: 142, torsoX: 210, torsoY: 432, torsoW: 248, torsoH: 294, bodyCX: 360, bodyCY: 786, bodyRX: 214, bodyRY: 130, haloX: 340, haloY: 256, haloR: 246, tagLeft: 72, tagRight: 560, bottomTag: 524 },
+          "profile": { headX: 468, headY: 296, headRX: 102, headRY: 136, torsoX: 316, torsoY: 402, torsoW: 256, torsoH: 324, bodyCX: 438, bodyCY: 760, bodyRX: 192, bodyRY: 134, haloX: 486, haloY: 246, haloR: 248, tagLeft: 72, tagRight: 552, bottomTag: 530 }
+        };
+        return map[layout] || map["center-tall"];
+      }
+
+      function buildPortraitScene(scene, theme) {
+        switch (scene) {
+          case "mirror":
+            return `<g opacity="0.24" stroke="${theme.c1}" fill="none"><rect x="64" y="120" width="180" height="620" rx="18"/><rect x="282" y="96" width="240" height="700" rx="24"/><rect x="560" y="138" width="170" height="610" rx="18"/><path d="M120 220 L180 280"/><path d="M618 320 L680 256"/><path d="M338 160 L468 160"/></g>`;
+          case "shards":
+            return `<g opacity="0.24" stroke="${theme.c1}" fill="rgba(255,255,255,0.04)"><path d="M86 170 L162 132 L188 210 Z"/><path d="M640 120 L718 172 L650 248 Z"/><path d="M120 680 L200 612 L232 728 Z"/><path d="M594 722 L694 650 L724 786 Z"/></g><g opacity="0.22" stroke="${theme.c2}" stroke-width="2"><path d="M78 88 L260 240"/><path d="M536 86 L744 254"/><path d="M510 618 L744 840"/></g>`;
+          case "rain":
+            return `<g opacity="0.2" stroke="${theme.c1}" stroke-width="3"><path d="M116 116 L86 236"/><path d="M198 128 L168 252"/><path d="M618 116 L592 246"/><path d="M708 148 L670 292"/><path d="M120 536 L92 650"/><path d="M706 560 L672 706"/></g><g opacity="0.28"><circle cx="144" cy="178" r="54" fill="${theme.c2}"/><rect x="118" y="228" width="18" height="324" rx="9" fill="${theme.c1}"/></g>`;
+          case "smear":
+            return `<g opacity="0.22" fill="${theme.c1}"><path d="M98 186 C156 114, 250 104, 314 166 C238 184, 176 204, 98 186 Z"/><path d="M498 124 C610 124, 694 170, 722 264 C634 256, 560 224, 498 124 Z"/><path d="M148 720 C248 642, 352 664, 426 742 C330 762, 230 760, 148 720 Z"/></g>`;
+          case "archive":
+            return `<g opacity="0.18" stroke="${theme.c1}" fill="none"><rect x="84" y="124" width="126" height="640"/><rect x="226" y="124" width="126" height="640"/><rect x="584" y="124" width="126" height="640"/></g><g opacity="0.3" fill="${theme.c2}"><rect x="106" y="170" width="84" height="18"/><rect x="106" y="238" width="84" height="18"/><rect x="604" y="198" width="84" height="18"/></g>`;
+          case "court":
+            return `<g opacity="0.2" stroke="${theme.c1}" fill="none"><path d="M128 768 L128 220"/><path d="M206 768 L206 220"/><path d="M594 768 L594 220"/><path d="M672 768 L672 220"/><path d="M96 220 L704 220"/></g><g opacity="0.22" fill="${theme.c2}"><path d="M400 170 L434 236 L366 236 Z"/></g>`;
+          case "chatwall":
+            return `<g opacity="0.22" fill="rgba(255,255,255,0.08)"><rect x="92" y="168" width="164" height="60" rx="24"/><rect x="546" y="242" width="146" height="56" rx="24"/><rect x="104" y="324" width="186" height="64" rx="24"/><rect x="528" y="414" width="162" height="58" rx="24"/></g><g opacity="0.24" fill="${theme.c1}"><circle cx="130" cy="196" r="8"/><circle cx="162" cy="196" r="8"/><circle cx="194" cy="196" r="8"/></g>`;
+          case "funeral":
+            return `<g opacity="0.2" fill="${theme.c1}"><path d="M120 792 C178 642, 236 572, 298 518 C240 648, 214 736, 188 840 Z"/><path d="M638 792 C580 642, 522 572, 460 518 C518 648, 544 736, 570 840 Z"/></g><g opacity="0.16" stroke="${theme.c2}" fill="none"><path d="M170 176 C214 132, 258 118, 306 160"/><path d="M560 180 C606 124, 656 132, 698 196"/></g>`;
+          case "club":
+            return `<g opacity="0.2" stroke="${theme.c1}" fill="none"><circle cx="164" cy="204" r="72"/><circle cx="622" cy="184" r="102"/><circle cx="650" cy="662" r="140"/></g><g opacity="0.34" stroke="${theme.c2}" stroke-width="4"><path d="M88 704 L220 540"/><path d="M610 122 L726 248"/></g>`;
+          case "race":
+            return `<g opacity="0.18" fill="${theme.c1}"><path d="M74 222 L290 222 L230 274 L74 274 Z"/><path d="M474 760 L728 760 L658 812 L474 812 Z"/></g><g opacity="0.28" fill="rgba(255,255,255,0.18)"><rect x="592" y="146" width="24" height="24"/><rect x="616" y="170" width="24" height="24"/><rect x="592" y="194" width="24" height="24"/><rect x="616" y="218" width="24" height="24"/></g>`;
+          case "dessert":
+            return `<g opacity="0.18" fill="${theme.c1}"><rect x="118" y="704" width="180" height="22" rx="11"/><path d="M156 704 C170 626, 244 626, 258 704 Z"/><circle cx="206" cy="622" r="18"/></g><g opacity="0.16" stroke="${theme.c2}" fill="none"><circle cx="640" cy="210" r="92"/><path d="M548 210 L732 210"/></g>`;
+          case "candle":
+            return `<g opacity="0.2" fill="${theme.c1}"><rect x="118" y="632" width="42" height="154" rx="18"/><rect x="636" y="560" width="48" height="220" rx="18"/><path d="M138 622 C118 600, 120 572, 140 548 C162 572, 164 600, 138 622 Z"/><path d="M660 548 C636 520, 640 482, 662 454 C688 482, 688 520, 660 548 Z"/></g>`;
+          case "catroom":
+            return `<g opacity="0.18" fill="${theme.c1}"><circle cx="164" cy="186" r="56"/><path d="M126 156 L144 118 L164 154 Z"/><path d="M166 154 L186 118 L202 158 Z"/><circle cx="640" cy="722" r="64"/></g><g opacity="0.16" stroke="${theme.c2}" fill="none"><path d="M588 720 C610 696, 668 696, 692 720"/></g>`;
+          case "lounge":
+            return `<g opacity="0.18" stroke="${theme.c1}" fill="none"><rect x="86" y="108" width="220" height="300" rx="22"/><path d="M542 760 L712 760"/><path d="M626 760 L626 626"/></g><g opacity="0.22" fill="${theme.c2}"><path d="M626 622 L658 702 L594 702 Z"/></g>`;
+          case "bedroom":
+            return `<g opacity="0.18" fill="rgba(255,255,255,0.08)"><rect x="86" y="136" width="102" height="128" rx="10"/><rect x="206" y="176" width="124" height="94" rx="10"/><rect x="588" y="160" width="134" height="112" rx="10"/></g><g opacity="0.22" stroke="${theme.c1}" fill="none"><path d="M102 706 L286 706"/><path d="M114 738 L286 738"/></g>`;
+          case "silk":
+            return `<g opacity="0.2" fill="${theme.c1}"><path d="M84 82 C164 164, 184 310, 146 480 C120 604, 124 732, 166 910 L84 910 Z"/><path d="M716 82 C642 164, 618 306, 658 478 C688 604, 684 736, 636 910 L716 910 Z"/></g><g opacity="0.16" stroke="${theme.c2}" fill="none"><path d="M110 140 C182 244, 194 398, 162 548"/><path d="M690 136 C620 252, 610 402, 644 556"/></g>`;
+          default:
+            return `<g opacity="0.22" stroke="${theme.c1}" fill="none"><path d="M60 150 C180 60, 290 80, 410 150"/><path d="M390 130 C520 60, 650 110, 760 210"/><path d="M40 770 C190 650, 330 690, 520 810"/></g>`;
+        }
+      }
+
+      function buildPortraitBody(body, theme, layout) {
+        switch (body) {
+          case "suit":
+            return `<ellipse cx="${layout.bodyCX}" cy="${layout.bodyCY}" rx="${layout.bodyRX}" ry="${layout.bodyRY}" fill="${theme.c3}" fill-opacity="0.94"/><rect x="${layout.torsoX}" y="${layout.torsoY}" width="${layout.torsoW}" height="${layout.torsoH}" rx="118" fill="url(#cloth)" fill-opacity="0.92"/><path d="M${layout.torsoX + 80} ${layout.torsoY + 24} L${layout.bodyCX} ${layout.torsoY + 148} L${layout.torsoX + layout.torsoW - 80} ${layout.torsoY + 24}" stroke="${theme.c1}" stroke-width="10" fill="none"/>`;
+          case "dress-suit":
+            return `<ellipse cx="${layout.bodyCX}" cy="${layout.bodyCY}" rx="${layout.bodyRX}" ry="${layout.bodyRY}" fill="${theme.c3}" fill-opacity="0.92"/><path d="M${layout.torsoX} ${layout.torsoY + 40} C${layout.torsoX + 30} ${layout.torsoY - 20}, ${layout.torsoX + layout.torsoW - 20} ${layout.torsoY - 10}, ${layout.torsoX + layout.torsoW} ${layout.torsoY + 64} L${layout.torsoX + layout.torsoW - 24} ${layout.torsoY + layout.torsoH} L${layout.torsoX + 36} ${layout.torsoY + layout.torsoH} Z" fill="url(#cloth)" fill-opacity="0.94"/><path d="M${layout.bodyCX - 8} ${layout.torsoY + 40} L${layout.bodyCX - 48} ${layout.torsoY + 148} L${layout.bodyCX + 24} ${layout.torsoY + 148} Z" fill="${theme.c1}" fill-opacity="0.64"/>`;
+          case "trench":
+            return `<ellipse cx="${layout.bodyCX}" cy="${layout.bodyCY}" rx="${layout.bodyRX}" ry="${layout.bodyRY}" fill="${theme.c3}" fill-opacity="0.88"/><path d="M${layout.torsoX} ${layout.torsoY + 22} C${layout.torsoX + 16} ${layout.torsoY - 18}, ${layout.torsoX + layout.torsoW - 26} ${layout.torsoY - 8}, ${layout.torsoX + layout.torsoW} ${layout.torsoY + 48} L${layout.torsoX + layout.torsoW - 44} ${layout.torsoY + layout.torsoH} L${layout.torsoX + 18} ${layout.torsoY + layout.torsoH - 28} Z" fill="url(#cloth)" fill-opacity="0.9"/><path d="M${layout.bodyCX} ${layout.torsoY + 54} L${layout.bodyCX - 48} ${layout.torsoY + 188}" stroke="${theme.c1}" stroke-width="10"/><path d="M${layout.bodyCX} ${layout.torsoY + 54} L${layout.bodyCX + 58} ${layout.torsoY + 206}" stroke="${theme.c1}" stroke-width="10"/>`;
+          case "slip":
+            return `<ellipse cx="${layout.bodyCX}" cy="${layout.bodyCY}" rx="${layout.bodyRX}" ry="${layout.bodyRY}" fill="${theme.c2}" fill-opacity="0.26"/><path d="M${layout.torsoX + 22} ${layout.torsoY + 66} C${layout.torsoX + 50} ${layout.torsoY + 10}, ${layout.torsoX + layout.torsoW - 40} ${layout.torsoY + 10}, ${layout.torsoX + layout.torsoW - 10} ${layout.torsoY + 72} L${layout.torsoX + layout.torsoW - 42} ${layout.torsoY + layout.torsoH} L${layout.torsoX + 40} ${layout.torsoY + layout.torsoH - 10} Z" fill="url(#cloth)" fill-opacity="0.76"/><path d="M${layout.torsoX + 48} ${layout.torsoY + 88} L${layout.torsoX + 72} ${layout.torsoY + 30}" stroke="${theme.c1}" stroke-width="7"/><path d="M${layout.torsoX + layout.torsoW - 52} ${layout.torsoY + 86} L${layout.torsoX + layout.torsoW - 76} ${layout.torsoY + 24}" stroke="${theme.c1}" stroke-width="7"/>`;
+          case "coat":
+            return `<ellipse cx="${layout.bodyCX}" cy="${layout.bodyCY}" rx="${layout.bodyRX}" ry="${layout.bodyRY}" fill="${theme.c3}" fill-opacity="0.94"/><rect x="${layout.torsoX}" y="${layout.torsoY}" width="${layout.torsoW}" height="${layout.torsoH}" rx="82" fill="url(#cloth)" fill-opacity="0.92"/><path d="M${layout.bodyCX} ${layout.torsoY + 32} L${layout.bodyCX} ${layout.torsoY + layout.torsoH - 24}" stroke="${theme.c1}" stroke-width="8"/><circle cx="${layout.bodyCX}" cy="${layout.torsoY + 126}" r="10" fill="${theme.c1}"/><circle cx="${layout.bodyCX}" cy="${layout.torsoY + 208}" r="10" fill="${theme.c1}"/>`;
+          case "judge-coat":
+            return `<ellipse cx="${layout.bodyCX}" cy="${layout.bodyCY}" rx="${layout.bodyRX}" ry="${layout.bodyRY}" fill="${theme.c3}" fill-opacity="0.94"/><path d="M${layout.torsoX} ${layout.torsoY + 18} C${layout.torsoX + 40} ${layout.torsoY - 24}, ${layout.torsoX + layout.torsoW - 36} ${layout.torsoY - 24}, ${layout.torsoX + layout.torsoW} ${layout.torsoY + 22} L${layout.torsoX + layout.torsoW - 20} ${layout.torsoY + layout.torsoH} L${layout.torsoX + 20} ${layout.torsoY + layout.torsoH} Z" fill="url(#cloth)" fill-opacity="0.92"/><rect x="${layout.bodyCX - 34}" y="${layout.torsoY + 12}" width="68" height="144" rx="16" fill="${theme.c1}" fill-opacity="0.56"/>`;
+          case "hoodie":
+            return `<ellipse cx="${layout.bodyCX}" cy="${layout.bodyCY}" rx="${layout.bodyRX}" ry="${layout.bodyRY}" fill="${theme.c3}" fill-opacity="0.9"/><path d="M${layout.torsoX + 20} ${layout.torsoY + 40} C${layout.torsoX + 54} ${layout.torsoY - 10}, ${layout.torsoX + layout.torsoW - 54} ${layout.torsoY - 10}, ${layout.torsoX + layout.torsoW - 18} ${layout.torsoY + 42} L${layout.torsoX + layout.torsoW - 4} ${layout.torsoY + layout.torsoH - 24} L${layout.torsoX + 10} ${layout.torsoY + layout.torsoH} Z" fill="url(#cloth)" fill-opacity="0.84"/><path d="M${layout.bodyCX - 58} ${layout.torsoY + 70} C${layout.bodyCX - 30} ${layout.torsoY + 12}, ${layout.bodyCX + 30} ${layout.torsoY + 12}, ${layout.bodyCX + 58} ${layout.torsoY + 70}" stroke="${theme.c1}" stroke-width="8" fill="none"/>`;
+          case "glove-dress":
+            return `<ellipse cx="${layout.bodyCX}" cy="${layout.bodyCY}" rx="${layout.bodyRX}" ry="${layout.bodyRY}" fill="${theme.c3}" fill-opacity="0.88"/><path d="M${layout.torsoX + 26} ${layout.torsoY + 42} C${layout.torsoX + 60} ${layout.torsoY - 4}, ${layout.torsoX + layout.torsoW - 60} ${layout.torsoY - 4}, ${layout.torsoX + layout.torsoW - 30} ${layout.torsoY + 48} L${layout.torsoX + layout.torsoW - 46} ${layout.torsoY + layout.torsoH} L${layout.torsoX + 42} ${layout.torsoY + layout.torsoH} Z" fill="url(#cloth)" fill-opacity="0.8"/><rect x="${layout.torsoX - 22}" y="${layout.torsoY + 160}" width="34" height="140" rx="17" fill="${theme.c1}" fill-opacity="0.54"/><rect x="${layout.torsoX + layout.torsoW - 12}" y="${layout.torsoY + 160}" width="34" height="140" rx="17" fill="${theme.c1}" fill-opacity="0.54"/>`;
+          case "leather":
+            return `<ellipse cx="${layout.bodyCX}" cy="${layout.bodyCY}" rx="${layout.bodyRX}" ry="${layout.bodyRY}" fill="${theme.c3}" fill-opacity="0.92"/><path d="M${layout.torsoX} ${layout.torsoY + 30} L${layout.torsoX + layout.torsoW - 10} ${layout.torsoY + 10} L${layout.torsoX + layout.torsoW} ${layout.torsoY + layout.torsoH - 12} L${layout.torsoX + 30} ${layout.torsoY + layout.torsoH} Z" fill="url(#cloth)" fill-opacity="0.94"/><path d="M${layout.torsoX + 40} ${layout.torsoY + 72} L${layout.torsoX + layout.torsoW - 40} ${layout.torsoY + 210}" stroke="${theme.c1}" stroke-width="9"/>`;
+          case "racer":
+            return `<ellipse cx="${layout.bodyCX}" cy="${layout.bodyCY}" rx="${layout.bodyRX}" ry="${layout.bodyRY}" fill="${theme.c3}" fill-opacity="0.9"/><path d="M${layout.torsoX} ${layout.torsoY + 40} C${layout.torsoX + 42} ${layout.torsoY - 12}, ${layout.torsoX + layout.torsoW - 52} ${layout.torsoY - 2}, ${layout.torsoX + layout.torsoW} ${layout.torsoY + 42} L${layout.torsoX + layout.torsoW - 22} ${layout.torsoY + layout.torsoH} L${layout.torsoX + 24} ${layout.torsoY + layout.torsoH - 24} Z" fill="url(#cloth)" fill-opacity="0.9"/><rect x="${layout.torsoX + 34}" y="${layout.torsoY + 106}" width="${layout.torsoW - 68}" height="20" rx="10" fill="${theme.c1}" fill-opacity="0.56"/><rect x="${layout.torsoX + 34}" y="${layout.torsoY + 166}" width="${layout.torsoW - 96}" height="14" rx="7" fill="${theme.c1}" fill-opacity="0.4"/>`;
+          case "soft-knit":
+            return `<ellipse cx="${layout.bodyCX}" cy="${layout.bodyCY}" rx="${layout.bodyRX}" ry="${layout.bodyRY}" fill="${theme.c2}" fill-opacity="0.22"/><rect x="${layout.torsoX}" y="${layout.torsoY}" width="${layout.torsoW}" height="${layout.torsoH}" rx="118" fill="url(#cloth)" fill-opacity="0.72"/><g opacity="0.24" stroke="${theme.c1}">${Array.from({ length: 7 }).map((_, i) => `<path d="M${layout.torsoX + 26} ${layout.torsoY + 48 + i * 34} L${layout.torsoX + layout.torsoW - 26} ${layout.torsoY + 48 + i * 34}"/>`).join("")}</g>`;
+          case "velvet":
+            return `<ellipse cx="${layout.bodyCX}" cy="${layout.bodyCY}" rx="${layout.bodyRX}" ry="${layout.bodyRY}" fill="${theme.c2}" fill-opacity="0.2"/><path d="M${layout.torsoX + 18} ${layout.torsoY + 34} C${layout.torsoX + 40} ${layout.torsoY - 8}, ${layout.torsoX + layout.torsoW - 44} ${layout.torsoY - 14}, ${layout.torsoX + layout.torsoW - 8} ${layout.torsoY + 46} L${layout.torsoX + layout.torsoW - 50} ${layout.torsoY + layout.torsoH} L${layout.torsoX + 26} ${layout.torsoY + layout.torsoH} Z" fill="url(#cloth)" fill-opacity="0.86"/><path d="M${layout.bodyCX - 72} ${layout.torsoY + 40} C${layout.bodyCX - 40} ${layout.torsoY + 84}, ${layout.bodyCX + 12} ${layout.torsoY + 110}, ${layout.bodyCX + 74} ${layout.torsoY + 154}" stroke="${theme.c1}" stroke-width="8" fill="none" opacity="0.6"/>`;
+          case "cardigan":
+            return `<ellipse cx="${layout.bodyCX}" cy="${layout.bodyCY}" rx="${layout.bodyRX}" ry="${layout.bodyRY}" fill="${theme.c3}" fill-opacity="0.86"/><rect x="${layout.torsoX}" y="${layout.torsoY}" width="${layout.torsoW}" height="${layout.torsoH}" rx="106" fill="url(#cloth)" fill-opacity="0.74"/><path d="M${layout.bodyCX} ${layout.torsoY + 18} L${layout.bodyCX} ${layout.torsoY + layout.torsoH - 12}" stroke="${theme.c1}" stroke-width="7"/><circle cx="${layout.bodyCX}" cy="${layout.torsoY + 88}" r="8" fill="${theme.c1}"/><circle cx="${layout.bodyCX}" cy="${layout.torsoY + 144}" r="8" fill="${theme.c1}"/>`;
+          case "blazer":
+            return `<ellipse cx="${layout.bodyCX}" cy="${layout.bodyCY}" rx="${layout.bodyRX}" ry="${layout.bodyRY}" fill="${theme.c3}" fill-opacity="0.9"/><path d="M${layout.torsoX} ${layout.torsoY + 26} C${layout.torsoX + 38} ${layout.torsoY - 18}, ${layout.torsoX + layout.torsoW - 18} ${layout.torsoY - 4}, ${layout.torsoX + layout.torsoW} ${layout.torsoY + 54} L${layout.torsoX + layout.torsoW - 14} ${layout.torsoY + layout.torsoH} L${layout.torsoX + 10} ${layout.torsoY + layout.torsoH - 20} Z" fill="url(#cloth)" fill-opacity="0.9"/><path d="M${layout.bodyCX - 12} ${layout.torsoY + 42} L${layout.bodyCX - 54} ${layout.torsoY + 160} L${layout.bodyCX + 24} ${layout.torsoY + 158} Z" fill="${theme.c1}" fill-opacity="0.56"/>`;
+          case "sweater":
+            return `<ellipse cx="${layout.bodyCX}" cy="${layout.bodyCY}" rx="${layout.bodyRX}" ry="${layout.bodyRY}" fill="${theme.c3}" fill-opacity="0.82"/><rect x="${layout.torsoX}" y="${layout.torsoY}" width="${layout.torsoW}" height="${layout.torsoH}" rx="92" fill="url(#cloth)" fill-opacity="0.72"/><path d="M${layout.torsoX + 26} ${layout.torsoY + 92} C${layout.torsoX + 74} ${layout.torsoY + 72}, ${layout.torsoX + 124} ${layout.torsoY + 70}, ${layout.torsoX + 182} ${layout.torsoY + 96}" stroke="${theme.c1}" stroke-width="7" fill="none" opacity="0.54"/>`;
+          case "silk-top":
+            return `<ellipse cx="${layout.bodyCX}" cy="${layout.bodyCY}" rx="${layout.bodyRX}" ry="${layout.bodyRY}" fill="${theme.c2}" fill-opacity="0.18"/><path d="M${layout.torsoX + 20} ${layout.torsoY + 36} C${layout.torsoX + 42} ${layout.torsoY - 6}, ${layout.torsoX + layout.torsoW - 52} ${layout.torsoY + 8}, ${layout.torsoX + layout.torsoW - 24} ${layout.torsoY + 60} L${layout.torsoX + layout.torsoW - 38} ${layout.torsoY + layout.torsoH} L${layout.torsoX + 44} ${layout.torsoY + layout.torsoH - 18} Z" fill="url(#cloth)" fill-opacity="0.66"/><path d="M${layout.torsoX + 46} ${layout.torsoY + 86} C${layout.bodyCX} ${layout.torsoY + 120}, ${layout.bodyCX} ${layout.torsoY + 124}, ${layout.torsoX + layout.torsoW - 46} ${layout.torsoY + 96}" stroke="${theme.c1}" stroke-width="6" fill="none" opacity="0.5"/>`;
+          default:
+            return `<ellipse cx="${layout.bodyCX}" cy="${layout.bodyCY}" rx="${layout.bodyRX}" ry="${layout.bodyRY}" fill="${theme.c3}" fill-opacity="0.92"/><rect x="${layout.torsoX}" y="${layout.torsoY}" width="${layout.torsoW}" height="${layout.torsoH}" rx="132" fill="${theme.c3}" fill-opacity="0.88"/>`;
+        }
+      }
+
+      function buildPortraitHead(head, theme, layout) {
+        switch (head) {
+          case "sharp-oval":
+            return `<path d="M${layout.headX - 96} ${layout.headY - 26} C${layout.headX - 88} ${layout.headY - 120}, ${layout.headX - 34} ${layout.headY - 156}, ${layout.headX + 34} ${layout.headY - 150} C${layout.headX + 92} ${layout.headY - 140}, ${layout.headX + 114} ${layout.headY - 58}, ${layout.headX + 104} ${layout.headY + 24} C${layout.headX + 94} ${layout.headY + 94}, ${layout.headX + 50} ${layout.headY + 126}, ${layout.headX} ${layout.headY + 138} C${layout.headX - 48} ${layout.headY + 126}, ${layout.headX - 88} ${layout.headY + 90}, ${layout.headX - 100} ${layout.headY + 20} C${layout.headX - 104} ${layout.headY - 8}, ${layout.headX - 102} ${layout.headY - 18}, ${layout.headX - 96} ${layout.headY - 26} Z" fill="url(#skin)" fill-opacity="0.97"/>`;
+          case "diamond":
+            return `<path d="M${layout.headX} ${layout.headY - 156} C${layout.headX + 74} ${layout.headY - 146}, ${layout.headX + 120} ${layout.headY - 54}, ${layout.headX + 108} ${layout.headY + 34} C${layout.headX + 96} ${layout.headY + 98}, ${layout.headX + 44} ${layout.headY + 130}, ${layout.headX} ${layout.headY + 144} C${layout.headX - 46} ${layout.headY + 130}, ${layout.headX - 100} ${layout.headY + 94}, ${layout.headX - 112} ${layout.headY + 34} C${layout.headX - 126} ${layout.headY - 52}, ${layout.headX - 76} ${layout.headY - 148}, ${layout.headX} ${layout.headY - 156} Z" fill="url(#skin)" fill-opacity="0.97"/>`;
+          case "soft-heart":
+            return `<path d="M${layout.headX - 90} ${layout.headY - 18} C${layout.headX - 98} ${layout.headY - 128}, ${layout.headX - 22} ${layout.headY - 162}, ${layout.headX + 10} ${layout.headY - 152} C${layout.headX + 42} ${layout.headY - 164}, ${layout.headX + 104} ${layout.headY - 126}, ${layout.headX + 106} ${layout.headY - 18} C${layout.headX + 108} ${layout.headY + 72}, ${layout.headX + 50} ${layout.headY + 116}, ${layout.headX} ${layout.headY + 142} C${layout.headX - 54} ${layout.headY + 110}, ${layout.headX - 92} ${layout.headY + 74}, ${layout.headX - 90} ${layout.headY - 18} Z" fill="url(#skin)" fill-opacity="0.97"/>`;
+          case "full-round":
+            return `<circle cx="${layout.headX}" cy="${layout.headY + 6}" r="${Math.min(layout.headRX, layout.headRY) - 4}" fill="url(#skin)" fill-opacity="0.97"/><path d="M${layout.headX - 58} ${layout.headY + 110} C${layout.headX - 34} ${layout.headY + 142}, ${layout.headX + 32} ${layout.headY + 144}, ${layout.headX + 58} ${layout.headY + 104}" fill="url(#skin)" fill-opacity="0.97"/>`;
+          case "long-rect":
+            return `<path d="M${layout.headX - 92} ${layout.headY - 42} C${layout.headX - 82} ${layout.headY - 140}, ${layout.headX - 22} ${layout.headY - 164}, ${layout.headX + 42} ${layout.headY - 152} C${layout.headX + 88} ${layout.headY - 144}, ${layout.headX + 104} ${layout.headY - 88}, ${layout.headX + 102} ${layout.headY + 26} C${layout.headX + 98} ${layout.headY + 112}, ${layout.headX + 46} ${layout.headY + 134}, ${layout.headX} ${layout.headY + 142} C${layout.headX - 48} ${layout.headY + 132}, ${layout.headX - 90} ${layout.headY + 96}, ${layout.headX - 96} ${layout.headY + 18} Z" fill="url(#skin)" fill-opacity="0.97"/>`;
+          case "narrow-point":
+            return `<path d="M${layout.headX - 84} ${layout.headY - 24} C${layout.headX - 78} ${layout.headY - 136}, ${layout.headX - 16} ${layout.headY - 160}, ${layout.headX + 44} ${layout.headY - 150} C${layout.headX + 92} ${layout.headY - 142}, ${layout.headX + 106} ${layout.headY - 66}, ${layout.headX + 96} ${layout.headY + 12} C${layout.headX + 90} ${layout.headY + 92}, ${layout.headX + 22} ${layout.headY + 148}, ${layout.headX - 8} ${layout.headY + 156} C${layout.headX - 38} ${layout.headY + 134}, ${layout.headX - 72} ${layout.headY + 92}, ${layout.headX - 88} ${layout.headY + 10} Z" fill="url(#skin)" fill-opacity="0.97"/>`;
+          case "droop-oval":
+            return `<path d="M${layout.headX - 94} ${layout.headY - 18} C${layout.headX - 90} ${layout.headY - 116}, ${layout.headX - 36} ${layout.headY - 154}, ${layout.headX + 28} ${layout.headY - 152} C${layout.headX + 86} ${layout.headY - 150}, ${layout.headX + 100} ${layout.headY - 68}, ${layout.headX + 96} ${layout.headY + 28} C${layout.headX + 92} ${layout.headY + 104}, ${layout.headX + 34} ${layout.headY + 132}, ${layout.headX - 8} ${layout.headY + 142} C${layout.headX - 48} ${layout.headY + 134}, ${layout.headX - 96} ${layout.headY + 98}, ${layout.headX - 100} ${layout.headY + 18} Z" fill="url(#skin)" fill-opacity="0.97"/>`;
+          case "sharp-heart":
+            return `<path d="M${layout.headX - 92} ${layout.headY - 12} C${layout.headX - 98} ${layout.headY - 124}, ${layout.headX - 18} ${layout.headY - 168}, ${layout.headX + 8} ${layout.headY - 154} C${layout.headX + 48} ${layout.headY - 170}, ${layout.headX + 106} ${layout.headY - 128}, ${layout.headX + 106} ${layout.headY - 10} C${layout.headX + 106} ${layout.headY + 82}, ${layout.headX + 36} ${layout.headY + 122}, ${layout.headX} ${layout.headY + 150} C${layout.headX - 42} ${layout.headY + 124}, ${layout.headX - 92} ${layout.headY + 80}, ${layout.headX - 92} ${layout.headY - 12} Z" fill="url(#skin)" fill-opacity="0.97"/>`;
+          case "fox":
+            return `<path d="M${layout.headX - 98} ${layout.headY - 20} C${layout.headX - 94} ${layout.headY - 126}, ${layout.headX - 18} ${layout.headY - 158}, ${layout.headX + 34} ${layout.headY - 150} C${layout.headX + 92} ${layout.headY - 140}, ${layout.headX + 120} ${layout.headY - 50}, ${layout.headX + 104} ${layout.headY + 24} C${layout.headX + 90} ${layout.headY + 86}, ${layout.headX + 28} ${layout.headY + 128}, ${layout.headX - 10} ${layout.headY + 146} C${layout.headX - 44} ${layout.headY + 120}, ${layout.headX - 82} ${layout.headY + 92}, ${layout.headX - 102} ${layout.headY + 18} Z" fill="url(#skin)" fill-opacity="0.97"/>`;
+          case "wide-jaw":
+            return `<path d="M${layout.headX - 98} ${layout.headY - 24} C${layout.headX - 90} ${layout.headY - 130}, ${layout.headX - 22} ${layout.headY - 160}, ${layout.headX + 48} ${layout.headY - 150} C${layout.headX + 102} ${layout.headY - 144}, ${layout.headX + 116} ${layout.headY - 60}, ${layout.headX + 106} ${layout.headY + 24} C${layout.headX + 106} ${layout.headY + 112}, ${layout.headX + 60} ${layout.headY + 142}, ${layout.headX} ${layout.headY + 144} C${layout.headX - 58} ${layout.headY + 142}, ${layout.headX - 102} ${layout.headY + 110}, ${layout.headX - 110} ${layout.headY + 26} Z" fill="url(#skin)" fill-opacity="0.97"/>`;
+          case "baby-round":
+            return `<ellipse cx="${layout.headX}" cy="${layout.headY + 8}" rx="${layout.headRX + 6}" ry="${layout.headRY - 2}" fill="url(#skin)" fill-opacity="0.97"/><path d="M${layout.headX - 52} ${layout.headY + 116} C${layout.headX - 20} ${layout.headY + 142}, ${layout.headX + 20} ${layout.headY + 142}, ${layout.headX + 52} ${layout.headY + 114}" fill="url(#skin)" fill-opacity="0.97"/>`;
+          case "storm-oval":
+            return `<path d="M${layout.headX - 102} ${layout.headY - 34} C${layout.headX - 90} ${layout.headY - 140}, ${layout.headX - 24} ${layout.headY - 172}, ${layout.headX + 46} ${layout.headY - 158} C${layout.headX + 108} ${layout.headY - 146}, ${layout.headX + 122} ${layout.headY - 48}, ${layout.headX + 110} ${layout.headY + 30} C${layout.headX + 102} ${layout.headY + 108}, ${layout.headX + 54} ${layout.headY + 132}, ${layout.headX} ${layout.headY + 148} C${layout.headX - 50} ${layout.headY + 126}, ${layout.headX - 102} ${layout.headY + 88}, ${layout.headX - 108} ${layout.headY + 12} Z" fill="url(#skin)" fill-opacity="0.97"/>`;
+          case "cat-heart":
+            return `<path d="M${layout.headX - 90} ${layout.headY - 18} C${layout.headX - 98} ${layout.headY - 126}, ${layout.headX - 20} ${layout.headY - 166}, ${layout.headX + 8} ${layout.headY - 154} C${layout.headX + 38} ${layout.headY - 166}, ${layout.headX + 96} ${layout.headY - 132}, ${layout.headX + 102} ${layout.headY - 22} C${layout.headX + 106} ${layout.headY + 70}, ${layout.headX + 42} ${layout.headY + 118}, ${layout.headX - 2} ${layout.headY + 144} C${layout.headX - 48} ${layout.headY + 120}, ${layout.headX - 92} ${layout.headY + 82}, ${layout.headX - 90} ${layout.headY - 18} Z" fill="url(#skin)" fill-opacity="0.97"/>`;
+          case "sleek-oval":
+            return `<path d="M${layout.headX - 90} ${layout.headY - 26} C${layout.headX - 84} ${layout.headY - 126}, ${layout.headX - 22} ${layout.headY - 160}, ${layout.headX + 34} ${layout.headY - 152} C${layout.headX + 90} ${layout.headY - 142}, ${layout.headX + 104} ${layout.headY - 58}, ${layout.headX + 96} ${layout.headY + 18} C${layout.headX + 90} ${layout.headY + 96}, ${layout.headX + 44} ${layout.headY + 126}, ${layout.headX - 2} ${layout.headY + 140} C${layout.headX - 46} ${layout.headY + 122}, ${layout.headX - 86} ${layout.headY + 96}, ${layout.headX - 94} ${layout.headY + 20} Z" fill="url(#skin)" fill-opacity="0.97"/>`;
+          case "soft-long":
+            return `<path d="M${layout.headX - 84} ${layout.headY - 34} C${layout.headX - 78} ${layout.headY - 132}, ${layout.headX - 24} ${layout.headY - 168}, ${layout.headX + 28} ${layout.headY - 160} C${layout.headX + 84} ${layout.headY - 150}, ${layout.headX + 94} ${layout.headY - 62}, ${layout.headX + 90} ${layout.headY + 22} C${layout.headX + 84} ${layout.headY + 110}, ${layout.headX + 30} ${layout.headY + 142}, ${layout.headX - 10} ${layout.headY + 154} C${layout.headX - 48} ${layout.headY + 136}, ${layout.headX - 84} ${layout.headY + 106}, ${layout.headX - 88} ${layout.headY + 18} Z" fill="url(#skin)" fill-opacity="0.97"/>`;
+          case "blade-profile":
+            return `<path d="M${layout.headX - 82} ${layout.headY - 22} C${layout.headX - 76} ${layout.headY - 124}, ${layout.headX - 12} ${layout.headY - 156}, ${layout.headX + 24} ${layout.headY - 148} C${layout.headX + 68} ${layout.headY - 136}, ${layout.headX + 84} ${layout.headY - 86}, ${layout.headX + 84} ${layout.headY - 24} C${layout.headX + 88} ${layout.headY + 8}, ${layout.headX + 76} ${layout.headY + 28}, ${layout.headX + 62} ${layout.headY + 44} C${layout.headX + 50} ${layout.headY + 60}, ${layout.headX + 56} ${layout.headY + 92}, ${layout.headX + 34} ${layout.headY + 118} C${layout.headX + 12} ${layout.headY + 138}, ${layout.headX - 26} ${layout.headY + 148}, ${layout.headX - 54} ${layout.headY + 126} C${layout.headX - 76} ${layout.headY + 104}, ${layout.headX - 88} ${layout.headY + 44}, ${layout.headX - 82} ${layout.headY - 22} Z" fill="url(#skin)" fill-opacity="0.97"/>`;
+          default:
+            return `<ellipse cx="${layout.headX}" cy="${layout.headY}" rx="${layout.headRX}" ry="${layout.headRY}" fill="url(#skin)" fill-opacity="0.97"/>`;
+        }
+      }
+
+      function buildPortraitHair(hair, theme, layout) {
+        switch (hair) {
+          case "slick-bob":
+            return `<path d="M${layout.headX - 98} ${layout.headY - 12} C${layout.headX - 86} ${layout.headY - 120}, ${layout.headX - 18} ${layout.headY - 170}, ${layout.headX + 62} ${layout.headY - 152} C${layout.headX + 130} ${layout.headY - 136}, ${layout.headX + 154} ${layout.headY - 48}, ${layout.headX + 126} ${layout.headY + 40} C${layout.headX + 76} ${layout.headY + 86}, ${layout.headX - 30} ${layout.headY + 86}, ${layout.headX - 94} ${layout.headY + 28} Z" fill="${theme.c3}"/>`;
+          case "wave-long":
+            return `<path d="M${layout.headX - 108} ${layout.headY + 8} C${layout.headX - 114} ${layout.headY - 134}, ${layout.headX - 8} ${layout.headY - 188}, ${layout.headX + 92} ${layout.headY - 150} C${layout.headX + 160} ${layout.headY - 120}, ${layout.headX + 186} ${layout.headY - 30}, ${layout.headX + 150} ${layout.headY + 140} C${layout.headX + 82} ${layout.headY + 200}, ${layout.headX - 44} ${layout.headY + 196}, ${layout.headX - 112} ${layout.headY + 74} Z" fill="${theme.c3}"/>`;
+          case "soft-long":
+            return `<path d="M${layout.headX - 100} ${layout.headY + 16} C${layout.headX - 102} ${layout.headY - 124}, ${layout.headX - 18} ${layout.headY - 182}, ${layout.headX + 64} ${layout.headY - 162} C${layout.headX + 132} ${layout.headY - 146}, ${layout.headX + 154} ${layout.headY - 42}, ${layout.headX + 134} ${layout.headY + 118} C${layout.headX + 94} ${layout.headY + 204}, ${layout.headX - 20} ${layout.headY + 214}, ${layout.headX - 94} ${layout.headY + 108} Z" fill="${theme.c3}"/>`;
+          case "messy-wave":
+            return `<path d="M${layout.headX - 118} ${layout.headY + 10} C${layout.headX - 112} ${layout.headY - 126}, ${layout.headX - 20} ${layout.headY - 198}, ${layout.headX + 90} ${layout.headY - 160} C${layout.headX + 182} ${layout.headY - 130}, ${layout.headX + 182} ${layout.headY - 8}, ${layout.headX + 154} ${layout.headY + 140} C${layout.headX + 98} ${layout.headY + 208}, ${layout.headX - 70} ${layout.headY + 224}, ${layout.headX - 120} ${layout.headY + 110} Z" fill="${theme.c3}"/><path d="M${layout.headX - 50} ${layout.headY - 124} C${layout.headX} ${layout.headY - 180}, ${layout.headX + 48} ${layout.headY - 168}, ${layout.headX + 94} ${layout.headY - 126}" stroke="${theme.c2}" stroke-width="10" opacity="0.32" fill="none"/>`;
+          case "sharp-part":
+            return `<path d="M${layout.headX - 102} ${layout.headY - 2} C${layout.headX - 104} ${layout.headY - 120}, ${layout.headX - 24} ${layout.headY - 174}, ${layout.headX + 78} ${layout.headY - 160} C${layout.headX + 142} ${layout.headY - 152}, ${layout.headX + 152} ${layout.headY - 50}, ${layout.headX + 126} ${layout.headY + 44} C${layout.headX + 54} ${layout.headY + 76}, ${layout.headX - 24} ${layout.headY + 76}, ${layout.headX - 102} ${layout.headY + 18} Z" fill="${theme.c3}"/><path d="M${layout.headX + 6} ${layout.headY - 162} L${layout.headX - 24} ${layout.headY + 34}" stroke="${theme.c1}" stroke-width="6" opacity="0.48"/>`;
+          case "sleek-back":
+            return `<path d="M${layout.headX - 96} ${layout.headY - 16} C${layout.headX - 86} ${layout.headY - 118}, ${layout.headX - 8} ${layout.headY - 174}, ${layout.headX + 92} ${layout.headY - 150} C${layout.headX + 144} ${layout.headY - 136}, ${layout.headX + 160} ${layout.headY - 74}, ${layout.headX + 144} ${layout.headY - 8} C${layout.headX + 68} ${layout.headY - 52}, ${layout.headX - 2} ${layout.headY - 64}, ${layout.headX - 96} ${layout.headY - 16} Z" fill="${theme.c3}"/>`;
+          case "loose-mid":
+            return `<path d="M${layout.headX - 98} ${layout.headY + 2} C${layout.headX - 98} ${layout.headY - 132}, ${layout.headX - 20} ${layout.headY - 178}, ${layout.headX + 72} ${layout.headY - 156} C${layout.headX + 136} ${layout.headY - 140}, ${layout.headX + 148} ${layout.headY - 56}, ${layout.headX + 132} ${layout.headY + 92} C${layout.headX + 82} ${layout.headY + 176}, ${layout.headX - 18} ${layout.headY + 168}, ${layout.headX - 100} ${layout.headY + 80} Z" fill="${theme.c3}"/>`;
+          case "bun":
+            return `<circle cx="${layout.headX + 34}" cy="${layout.headY - 136}" r="44" fill="${theme.c3}"/><path d="M${layout.headX - 100} ${layout.headY - 8} C${layout.headX - 92} ${layout.headY - 122}, ${layout.headX - 18} ${layout.headY - 172}, ${layout.headX + 64} ${layout.headY - 152} C${layout.headX + 132} ${layout.headY - 136}, ${layout.headX + 142} ${layout.headY - 54}, ${layout.headX + 118} ${layout.headY + 36} C${layout.headX + 54} ${layout.headY + 74}, ${layout.headX - 20} ${layout.headY + 78}, ${layout.headX - 96} ${layout.headY + 22} Z" fill="${theme.c3}"/>`;
+          case "high-pony":
+            return `<path d="M${layout.headX - 104} ${layout.headY - 10} C${layout.headX - 94} ${layout.headY - 116}, ${layout.headX - 12} ${layout.headY - 172}, ${layout.headX + 82} ${layout.headY - 148} C${layout.headX + 140} ${layout.headY - 132}, ${layout.headX + 152} ${layout.headY - 44}, ${layout.headX + 126} ${layout.headY + 40} C${layout.headX + 72} ${layout.headY + 72}, ${layout.headX - 6} ${layout.headY + 76}, ${layout.headX - 98} ${layout.headY + 20} Z" fill="${theme.c3}"/><path d="M${layout.headX + 92} ${layout.headY - 92} C${layout.headX + 168} ${layout.headY - 156}, ${layout.headX + 206} ${layout.headY - 86}, ${layout.headX + 154} ${layout.headY + 12}" stroke="${theme.c3}" stroke-width="34" stroke-linecap="round" fill="none"/>`;
+          case "spiky":
+            return `<path d="M${layout.headX - 102} ${layout.headY + 6} L${layout.headX - 72} ${layout.headY - 114} L${layout.headX - 18} ${layout.headY - 170} L${layout.headX + 34} ${layout.headY - 142} L${layout.headX + 92} ${layout.headY - 182} L${layout.headX + 154} ${layout.headY - 36} L${layout.headX + 124} ${layout.headY + 34} C${layout.headX + 58} ${layout.headY + 80}, ${layout.headX - 22} ${layout.headY + 82}, ${layout.headX - 102} ${layout.headY + 6} Z" fill="${theme.c3}"/>`;
+          case "curl-bob":
+            return `<path d="M${layout.headX - 108} ${layout.headY + 6} C${layout.headX - 104} ${layout.headY - 124}, ${layout.headX - 28} ${layout.headY - 172}, ${layout.headX + 68} ${layout.headY - 152} C${layout.headX + 142} ${layout.headY - 136}, ${layout.headX + 160} ${layout.headY - 34}, ${layout.headX + 136} ${layout.headY + 76} C${layout.headX + 98} ${layout.headY + 122}, ${layout.headX + 56} ${layout.headY + 150}, ${layout.headX + 16} ${layout.headY + 132} C${layout.headX - 18} ${layout.headY + 166}, ${layout.headX - 76} ${layout.headY + 146}, ${layout.headX - 104} ${layout.headY + 74} Z" fill="${theme.c3}"/>`;
+          case "wild-long":
+            return `<path d="M${layout.headX - 126} ${layout.headY + 16} C${layout.headX - 118} ${layout.headY - 126}, ${layout.headX - 10} ${layout.headY - 202}, ${layout.headX + 98} ${layout.headY - 160} C${layout.headX + 190} ${layout.headY - 126}, ${layout.headX + 192} ${layout.headY + 4}, ${layout.headX + 156} ${layout.headY + 176} C${layout.headX + 100} ${layout.headY + 222}, ${layout.headX - 82} ${layout.headY + 236}, ${layout.headX - 126} ${layout.headY + 126} Z" fill="${theme.c3}"/>`;
+          case "cat-bob":
+            return `<path d="M${layout.headX - 108} ${layout.headY + 4} C${layout.headX - 104} ${layout.headY - 118}, ${layout.headX - 20} ${layout.headY - 166}, ${layout.headX + 72} ${layout.headY - 150} C${layout.headX + 146} ${layout.headY - 138}, ${layout.headX + 154} ${layout.headY - 24}, ${layout.headX + 130} ${layout.headY + 64} C${layout.headX + 82} ${layout.headY + 110}, ${layout.headX - 44} ${layout.headY + 112}, ${layout.headX - 106} ${layout.headY + 46} Z" fill="${theme.c3}"/><path d="M${layout.headX - 54} ${layout.headY - 140} L${layout.headX - 16} ${layout.headY - 196} L${layout.headX + 8} ${layout.headY - 140} Z" fill="${theme.c3}"/><path d="M${layout.headX + 42} ${layout.headY - 142} L${layout.headX + 80} ${layout.headY - 196} L${layout.headX + 106} ${layout.headY - 138} Z" fill="${theme.c3}"/>`;
+          case "swept":
+            return `<path d="M${layout.headX - 100} ${layout.headY - 8} C${layout.headX - 94} ${layout.headY - 118}, ${layout.headX - 8} ${layout.headY - 178}, ${layout.headX + 94} ${layout.headY - 148} C${layout.headX + 156} ${layout.headY - 132}, ${layout.headX + 168} ${layout.headY - 68}, ${layout.headX + 152} ${layout.headY + 6} C${layout.headX + 70} ${layout.headY - 24}, ${layout.headX + 16} ${layout.headY - 40}, ${layout.headX - 100} ${layout.headY - 8} Z" fill="${theme.c3}"/><path d="M${layout.headX + 56} ${layout.headY - 120} C${layout.headX + 140} ${layout.headY - 110}, ${layout.headX + 186} ${layout.headY - 66}, ${layout.headX + 196} ${layout.headY + 8}" stroke="${theme.c3}" stroke-width="22" stroke-linecap="round" fill="none"/>`;
+          case "soft-braid":
+            return `<path d="M${layout.headX - 100} ${layout.headY + 2} C${layout.headX - 100} ${layout.headY - 124}, ${layout.headX - 22} ${layout.headY - 176}, ${layout.headX + 70} ${layout.headY - 156} C${layout.headX + 140} ${layout.headY - 142}, ${layout.headX + 150} ${layout.headY - 48}, ${layout.headX + 132} ${layout.headY + 84} C${layout.headX + 92} ${layout.headY + 180}, ${layout.headX - 6} ${layout.headY + 176}, ${layout.headX - 100} ${layout.headY + 82} Z" fill="${theme.c3}"/><path d="M${layout.headX + 48} ${layout.headY + 68} C${layout.headX + 98} ${layout.headY + 124}, ${layout.headX + 116} ${layout.headY + 170}, ${layout.headX + 84} ${layout.headY + 238}" stroke="${theme.c3}" stroke-width="22" stroke-linecap="round" fill="none"/>`;
+          case "sleek-long":
+            return `<path d="M${layout.headX - 92} ${layout.headY - 8} C${layout.headX - 92} ${layout.headY - 132}, ${layout.headX - 16} ${layout.headY - 184}, ${layout.headX + 84} ${layout.headY - 156} C${layout.headX + 146} ${layout.headY - 136}, ${layout.headX + 160} ${layout.headY - 46}, ${layout.headX + 144} ${layout.headY + 144} C${layout.headX + 118} ${layout.headY + 246}, ${layout.headX + 18} ${layout.headY + 266}, ${layout.headX - 76} ${layout.headY + 148} Z" fill="${theme.c3}"/>`;
+          default:
+            return `<path d="M${layout.headX - 98} ${layout.headY - 12} C${layout.headX - 86} ${layout.headY - 120}, ${layout.headX - 18} ${layout.headY - 170}, ${layout.headX + 62} ${layout.headY - 152} C${layout.headX + 130} ${layout.headY - 136}, ${layout.headX + 154} ${layout.headY - 48}, ${layout.headX + 126} ${layout.headY + 40} C${layout.headX + 76} ${layout.headY + 86}, ${layout.headX - 30} ${layout.headY + 86}, ${layout.headX - 94} ${layout.headY + 28} Z" fill="${theme.c3}"/>`;
+        }
+      }
+
+      function buildPortraitFace(face, theme, layout) {
+        const leftEyeX = layout.headX - 38;
+        const rightEyeX = layout.headX + 36;
+        const eyeY = layout.headY + 12;
+        const browY = layout.headY - 14;
+        switch (face) {
+          case "smirk":
+            return `<path d="M${leftEyeX - 18} ${browY} L${leftEyeX + 10} ${browY - 6}" stroke="${theme.c3}" stroke-width="6"/><path d="M${rightEyeX - 8} ${browY - 4} L${rightEyeX + 18} ${browY + 2}" stroke="${theme.c3}" stroke-width="6"/><ellipse cx="${leftEyeX}" cy="${eyeY}" rx="8" ry="10" fill="${theme.c3}"/><ellipse cx="${rightEyeX}" cy="${eyeY}" rx="8" ry="10" fill="${theme.c3}"/><path d="M${layout.headX - 22} ${layout.headY + 90} C${layout.headX + 6} ${layout.headY + 112}, ${layout.headX + 38} ${layout.headY + 92}, ${layout.headX + 52} ${layout.headY + 80}" stroke="${theme.c3}" stroke-width="8" fill="none" stroke-linecap="round"/>`;
+          case "downcast":
+            return `<path d="M${leftEyeX - 20} ${browY + 2} L${leftEyeX + 12} ${browY + 8}" stroke="${theme.c3}" stroke-width="6"/><path d="M${rightEyeX - 12} ${browY + 8} L${rightEyeX + 18} ${browY + 4}" stroke="${theme.c3}" stroke-width="6"/><path d="M${leftEyeX - 16} ${eyeY} C${leftEyeX - 4} ${eyeY + 10}, ${leftEyeX + 4} ${eyeY + 10}, ${leftEyeX + 16} ${eyeY}" stroke="${theme.c3}" stroke-width="6" fill="none"/><path d="M${rightEyeX - 16} ${eyeY} C${rightEyeX - 4} ${eyeY + 10}, ${rightEyeX + 4} ${eyeY + 10}, ${rightEyeX + 16} ${eyeY}" stroke="${theme.c3}" stroke-width="6" fill="none"/><path d="M${layout.headX - 32} ${layout.headY + 96} C${layout.headX - 8} ${layout.headY + 88}, ${layout.headX + 20} ${layout.headY + 92}, ${layout.headX + 42} ${layout.headY + 100}" stroke="${theme.c3}" stroke-width="7" fill="none" stroke-linecap="round"/>`;
+          case "broken":
+            return `<path d="M${leftEyeX - 18} ${browY - 6} L${leftEyeX + 16} ${browY + 2}" stroke="${theme.c3}" stroke-width="6"/><path d="M${rightEyeX - 16} ${browY + 6} L${rightEyeX + 14} ${browY - 8}" stroke="${theme.c3}" stroke-width="6"/><ellipse cx="${leftEyeX}" cy="${eyeY}" rx="8" ry="12" fill="${theme.c3}"/><ellipse cx="${rightEyeX}" cy="${eyeY}" rx="8" ry="12" fill="${theme.c3}"/><path d="M${layout.headX - 30} ${layout.headY + 98} C${layout.headX - 10} ${layout.headY + 120}, ${layout.headX + 20} ${layout.headY + 78}, ${layout.headX + 42} ${layout.headY + 98}" stroke="${theme.c3}" stroke-width="8" fill="none" stroke-linecap="round"/><path d="M${rightEyeX + 20} ${eyeY + 10} C${rightEyeX + 26} ${eyeY + 30}, ${rightEyeX + 20} ${eyeY + 48}, ${rightEyeX + 12} ${eyeY + 58}" stroke="${theme.c1}" stroke-width="5" fill="none" opacity="0.72"/>`;
+          case "stare":
+            return `<path d="M${leftEyeX - 18} ${browY - 2} L${leftEyeX + 16} ${browY - 2}" stroke="${theme.c3}" stroke-width="7"/><path d="M${rightEyeX - 18} ${browY - 2} L${rightEyeX + 16} ${browY - 2}" stroke="${theme.c3}" stroke-width="7"/><circle cx="${leftEyeX}" cy="${eyeY}" r="10" fill="${theme.c3}"/><circle cx="${rightEyeX}" cy="${eyeY}" r="10" fill="${theme.c3}"/><path d="M${layout.headX - 24} ${layout.headY + 96} L${layout.headX + 30} ${layout.headY + 96}" stroke="${theme.c3}" stroke-width="7" stroke-linecap="round"/>`;
+          case "cold":
+            return `<path d="M${leftEyeX - 20} ${browY - 4} L${leftEyeX + 8} ${browY + 2}" stroke="${theme.c3}" stroke-width="6"/><path d="M${rightEyeX - 6} ${browY + 2} L${rightEyeX + 18} ${browY - 4}" stroke="${theme.c3}" stroke-width="6"/><path d="M${leftEyeX - 14} ${eyeY} L${leftEyeX + 14} ${eyeY}" stroke="${theme.c3}" stroke-width="6"/><path d="M${rightEyeX - 14} ${eyeY} L${rightEyeX + 14} ${eyeY}" stroke="${theme.c3}" stroke-width="6"/><path d="M${layout.headX - 22} ${layout.headY + 94} C${layout.headX} ${layout.headY + 104}, ${layout.headX + 22} ${layout.headY + 104}, ${layout.headX + 44} ${layout.headY + 94}" stroke="${theme.c3}" stroke-width="7" fill="none"/>`;
+          case "tired":
+            return `<path d="M${leftEyeX - 14} ${eyeY} C${leftEyeX - 2} ${eyeY + 8}, ${leftEyeX + 8} ${eyeY + 8}, ${leftEyeX + 18} ${eyeY}" stroke="${theme.c3}" stroke-width="6" fill="none"/><path d="M${rightEyeX - 16} ${eyeY} C${rightEyeX - 4} ${eyeY + 8}, ${rightEyeX + 8} ${eyeY + 8}, ${rightEyeX + 18} ${eyeY}" stroke="${theme.c3}" stroke-width="6" fill="none"/><path d="M${layout.headX - 22} ${layout.headY + 106} C${layout.headX - 2} ${layout.headY + 98}, ${layout.headX + 16} ${layout.headY + 98}, ${layout.headX + 34} ${layout.headY + 108}" stroke="${theme.c3}" stroke-width="7" fill="none"/>`;
+          case "knife-smile":
+            return `<ellipse cx="${leftEyeX}" cy="${eyeY}" rx="8" ry="10" fill="${theme.c3}"/><ellipse cx="${rightEyeX}" cy="${eyeY}" rx="8" ry="10" fill="${theme.c3}"/><path d="M${layout.headX - 16} ${layout.headY + 86} C${layout.headX + 12} ${layout.headY + 118}, ${layout.headX + 38} ${layout.headY + 78}, ${layout.headX + 52} ${layout.headY + 86}" stroke="${theme.c3}" stroke-width="8" fill="none"/><path d="M${layout.headX + 14} ${layout.headY + 40} L${layout.headX + 16} ${layout.headY + 62}" stroke="${theme.c3}" stroke-width="4"/>`;
+          case "glare":
+            return `<path d="M${leftEyeX - 20} ${browY - 8} L${leftEyeX + 8} ${browY + 4}" stroke="${theme.c3}" stroke-width="7"/><path d="M${rightEyeX - 8} ${browY + 4} L${rightEyeX + 20} ${browY - 8}" stroke="${theme.c3}" stroke-width="7"/><ellipse cx="${leftEyeX}" cy="${eyeY}" rx="9" ry="11" fill="${theme.c3}"/><ellipse cx="${rightEyeX}" cy="${eyeY}" rx="9" ry="11" fill="${theme.c3}"/><path d="M${layout.headX - 24} ${layout.headY + 100} C${layout.headX + 8} ${layout.headY + 112}, ${layout.headX + 34} ${layout.headY + 112}, ${layout.headX + 52} ${layout.headY + 94}" stroke="${theme.c3}" stroke-width="8" fill="none"/>`;
+          case "grin":
+            return `<ellipse cx="${leftEyeX}" cy="${eyeY}" rx="8" ry="10" fill="${theme.c3}"/><ellipse cx="${rightEyeX}" cy="${eyeY}" rx="8" ry="10" fill="${theme.c3}"/><path d="M${layout.headX - 28} ${layout.headY + 92} C${layout.headX} ${layout.headY + 126}, ${layout.headX + 38} ${layout.headY + 120}, ${layout.headX + 60} ${layout.headY + 86}" stroke="${theme.c3}" stroke-width="8" fill="none"/><path d="M${layout.headX - 6} ${layout.headY + 102} L${layout.headX + 30} ${layout.headY + 102}" stroke="${theme.c1}" stroke-width="4" opacity="0.72"/>`;
+          case "dreamy":
+            return `<path d="M${leftEyeX - 16} ${eyeY} C${leftEyeX - 6} ${eyeY - 8}, ${leftEyeX + 8} ${eyeY - 8}, ${leftEyeX + 16} ${eyeY}" stroke="${theme.c3}" stroke-width="6" fill="none"/><path d="M${rightEyeX - 16} ${eyeY} C${rightEyeX - 6} ${eyeY - 8}, ${rightEyeX + 8} ${eyeY - 8}, ${rightEyeX + 16} ${eyeY}" stroke="${theme.c3}" stroke-width="6" fill="none"/><path d="M${layout.headX - 22} ${layout.headY + 94} C${layout.headX} ${layout.headY + 120}, ${layout.headX + 18} ${layout.headY + 120}, ${layout.headX + 42} ${layout.headY + 92}" stroke="${theme.c3}" stroke-width="7" fill="none"/>`;
+          case "manic":
+            return `<circle cx="${leftEyeX}" cy="${eyeY}" r="12" fill="${theme.c3}"/><circle cx="${rightEyeX}" cy="${eyeY - 4}" r="12" fill="${theme.c3}"/><path d="M${layout.headX - 34} ${layout.headY + 98} C${layout.headX - 10} ${layout.headY + 132}, ${layout.headX + 24} ${layout.headY + 70}, ${layout.headX + 50} ${layout.headY + 102}" stroke="${theme.c3}" stroke-width="9" fill="none"/>`;
+          case "cute-sly":
+            return `<path d="M${leftEyeX - 14} ${eyeY} C${leftEyeX - 2} ${eyeY - 8}, ${leftEyeX + 8} ${eyeY - 8}, ${leftEyeX + 16} ${eyeY}" stroke="${theme.c3}" stroke-width="6" fill="none"/><ellipse cx="${rightEyeX}" cy="${eyeY}" rx="8" ry="10" fill="${theme.c3}"/><path d="M${layout.headX - 8} ${layout.headY + 96} C${layout.headX + 14} ${layout.headY + 112}, ${layout.headX + 28} ${layout.headY + 108}, ${layout.headX + 44} ${layout.headY + 92}" stroke="${theme.c3}" stroke-width="8" fill="none"/>`;
+          case "side-smile":
+            return `<ellipse cx="${leftEyeX}" cy="${eyeY}" rx="8" ry="10" fill="${theme.c3}"/><path d="M${rightEyeX - 16} ${eyeY} C${rightEyeX - 4} ${eyeY - 8}, ${rightEyeX + 8} ${eyeY - 8}, ${rightEyeX + 18} ${eyeY}" stroke="${theme.c3}" stroke-width="6" fill="none"/><path d="M${layout.headX - 8} ${layout.headY + 94} C${layout.headX + 18} ${layout.headY + 98}, ${layout.headX + 36} ${layout.headY + 110}, ${layout.headX + 52} ${layout.headY + 98}" stroke="${theme.c3}" stroke-width="7" fill="none"/>`;
+          case "wistful":
+            return `<path d="M${leftEyeX - 16} ${eyeY + 2} C${leftEyeX - 4} ${eyeY + 10}, ${leftEyeX + 6} ${eyeY + 10}, ${leftEyeX + 16} ${eyeY + 2}" stroke="${theme.c3}" stroke-width="6" fill="none"/><path d="M${rightEyeX - 16} ${eyeY} C${rightEyeX - 4} ${eyeY + 8}, ${rightEyeX + 8} ${eyeY + 8}, ${rightEyeX + 18} ${eyeY}" stroke="${theme.c3}" stroke-width="6" fill="none"/><path d="M${layout.headX - 18} ${layout.headY + 100} C${layout.headX + 6} ${layout.headY + 112}, ${layout.headX + 24} ${layout.headY + 112}, ${layout.headX + 42} ${layout.headY + 102}" stroke="${theme.c3}" stroke-width="7" fill="none"/>`;
+          case "flat-cold":
+            return `<path d="M${leftEyeX - 18} ${browY - 8} L${leftEyeX + 10} ${browY}" stroke="${theme.c3}" stroke-width="6"/><path d="M${rightEyeX - 8} ${browY} L${rightEyeX + 18} ${browY - 8}" stroke="${theme.c3}" stroke-width="6"/><path d="M${leftEyeX - 14} ${eyeY} L${leftEyeX + 14} ${eyeY}" stroke="${theme.c3}" stroke-width="6"/><path d="M${rightEyeX - 14} ${eyeY} L${rightEyeX + 14} ${eyeY}" stroke="${theme.c3}" stroke-width="6"/><path d="M${layout.headX - 20} ${layout.headY + 98} L${layout.headX + 34} ${layout.headY + 96}" stroke="${theme.c3}" stroke-width="7" stroke-linecap="round"/>`;
+          default:
+            return `<circle cx="${leftEyeX}" cy="${eyeY}" r="9" fill="${theme.c3}"/><circle cx="${rightEyeX}" cy="${eyeY}" r="9" fill="${theme.c3}"/><path d="M${layout.headX - 24} ${layout.headY + 96} C${layout.headX} ${layout.headY + 116}, ${layout.headX + 24} ${layout.headY + 116}, ${layout.headX + 46} ${layout.headY + 94}" stroke="${theme.c3}" stroke-width="8" fill="none"/>`;
+        }
+      }
+
+      function buildPortraitProp(prop, theme, layout) {
+        switch (prop) {
+          case "phone":
+            return `<rect x="${layout.bodyCX + 86}" y="${layout.torsoY + 198}" width="40" height="88" rx="10" fill="${theme.c1}" fill-opacity="0.8"/><circle cx="${layout.bodyCX + 106}" cy="${layout.torsoY + 214}" r="4" fill="${theme.c3}"/>`;
+          case "glass":
+            return `<path d="M${layout.bodyCX + 94} ${layout.torsoY + 212} L${layout.bodyCX + 126} ${layout.torsoY + 212} L${layout.bodyCX + 112} ${layout.torsoY + 258} Z" fill="rgba(255,255,255,0.3)" stroke="${theme.c1}" stroke-width="4"/><path d="M${layout.bodyCX + 112} ${layout.torsoY + 258} L${layout.bodyCX + 112} ${layout.torsoY + 310}" stroke="${theme.c1}" stroke-width="4"/>`;
+          case "umbrella":
+            return `<path d="M${layout.bodyCX - 164} ${layout.torsoY + 82} C${layout.bodyCX - 104} ${layout.torsoY - 24}, ${layout.bodyCX + 12} ${layout.torsoY - 20}, ${layout.bodyCX + 72} ${layout.torsoY + 82}" fill="${theme.c1}" fill-opacity="0.28"/><path d="M${layout.bodyCX - 42} ${layout.torsoY + 82} L${layout.bodyCX - 42} ${layout.torsoY + 292}" stroke="${theme.c1}" stroke-width="6"/>`;
+          case "lipstick":
+            return `<rect x="${layout.bodyCX + 112}" y="${layout.torsoY + 192}" width="22" height="72" rx="10" fill="${theme.c1}"/><rect x="${layout.bodyCX + 116}" y="${layout.torsoY + 176}" width="14" height="20" rx="6" fill="#ff8ca8"/>`;
+          case "folder":
+            return `<rect x="${layout.bodyCX + 70}" y="${layout.torsoY + 170}" width="118" height="146" rx="14" fill="${theme.c1}" fill-opacity="0.26"/><path d="M${layout.bodyCX + 88} ${layout.torsoY + 208} L${layout.bodyCX + 172} ${layout.torsoY + 208}" stroke="${theme.c1}" stroke-width="4"/>`;
+          case "scale":
+            return `<path d="M${layout.bodyCX + 110} ${layout.torsoY + 132} L${layout.bodyCX + 110} ${layout.torsoY + 262}" stroke="${theme.c1}" stroke-width="6"/><path d="M${layout.bodyCX + 74} ${layout.torsoY + 158} L${layout.bodyCX + 146} ${layout.torsoY + 158}" stroke="${theme.c1}" stroke-width="6"/><circle cx="${layout.bodyCX + 86}" cy="${layout.torsoY + 200}" r="18" stroke="${theme.c1}" stroke-width="4" fill="none"/><circle cx="${layout.bodyCX + 134}" cy="${layout.torsoY + 200}" r="18" stroke="${theme.c1}" stroke-width="4" fill="none"/>`;
+          case "chat":
+            return `<rect x="${layout.bodyCX + 94}" y="${layout.torsoY + 166}" width="118" height="76" rx="24" fill="rgba(255,255,255,0.12)" stroke="${theme.c1}" stroke-width="4"/><circle cx="${layout.bodyCX + 126}" cy="${layout.torsoY + 204}" r="6" fill="${theme.c1}"/><circle cx="${layout.bodyCX + 154}" cy="${layout.torsoY + 204}" r="6" fill="${theme.c1}"/><circle cx="${layout.bodyCX + 182}" cy="${layout.torsoY + 204}" r="6" fill="${theme.c1}"/>`;
+          case "rose":
+            return `<path d="M${layout.bodyCX + 110} ${layout.torsoY + 168} C${layout.bodyCX + 128} ${layout.torsoY + 138}, ${layout.bodyCX + 150} ${layout.torsoY + 138}, ${layout.bodyCX + 162} ${layout.torsoY + 170} C${layout.bodyCX + 144} ${layout.torsoY + 194}, ${layout.bodyCX + 122} ${layout.torsoY + 194}, ${layout.bodyCX + 110} ${layout.torsoY + 168} Z" fill="${theme.c1}"/><path d="M${layout.bodyCX + 136} ${layout.torsoY + 192} L${layout.bodyCX + 114} ${layout.torsoY + 304}" stroke="${theme.c1}" stroke-width="4"/>`;
+          case "spark":
+            return `<path d="M${layout.bodyCX + 122} ${layout.torsoY + 186} L${layout.bodyCX + 142} ${layout.torsoY + 222} L${layout.bodyCX + 176} ${layout.torsoY + 228} L${layout.bodyCX + 150} ${layout.torsoY + 248} L${layout.bodyCX + 158} ${layout.torsoY + 282} L${layout.bodyCX + 122} ${layout.torsoY + 262} L${layout.bodyCX + 90} ${layout.torsoY + 280} L${layout.bodyCX + 98} ${layout.torsoY + 246} L${layout.bodyCX + 72} ${layout.torsoY + 228} L${layout.bodyCX + 106} ${layout.torsoY + 222} Z" fill="${theme.c1}" fill-opacity="0.86"/>`;
+          case "flag":
+            return `<path d="M${layout.bodyCX + 120} ${layout.torsoY + 152} L${layout.bodyCX + 120} ${layout.torsoY + 308}" stroke="${theme.c1}" stroke-width="6"/><path d="M${layout.bodyCX + 120} ${layout.torsoY + 156} L${layout.bodyCX + 190} ${layout.torsoY + 182} L${layout.bodyCX + 120} ${layout.torsoY + 212} Z" fill="rgba(255,255,255,0.28)"/>`;
+          case "cake":
+            return `<rect x="${layout.bodyCX + 86}" y="${layout.torsoY + 212}" width="96" height="40" rx="16" fill="${theme.c1}" fill-opacity="0.54"/><circle cx="${layout.bodyCX + 134}" cy="${layout.torsoY + 204}" r="14" fill="#fff0f2"/><circle cx="${layout.bodyCX + 112}" cy="${layout.torsoY + 230}" r="6" fill="${theme.c2}"/><circle cx="${layout.bodyCX + 156}" cy="${layout.torsoY + 232}" r="6" fill="${theme.c2}"/>`;
+          case "flame":
+            return `<path d="M${layout.bodyCX + 136} ${layout.torsoY + 164} C${layout.bodyCX + 118} ${layout.torsoY + 132}, ${layout.bodyCX + 126} ${layout.torsoY + 96}, ${layout.bodyCX + 144} ${layout.torsoY + 82} C${layout.bodyCX + 170} ${layout.torsoY + 112}, ${layout.bodyCX + 176} ${layout.torsoY + 150}, ${layout.bodyCX + 136} ${layout.torsoY + 164} Z" fill="${theme.c1}" fill-opacity="0.9"/>`;
+          case "paw":
+            return `<circle cx="${layout.bodyCX + 126}" cy="${layout.torsoY + 210}" r="24" fill="${theme.c1}" fill-opacity="0.72"/><circle cx="${layout.bodyCX + 106}" cy="${layout.torsoY + 184}" r="8" fill="${theme.c1}"/><circle cx="${layout.bodyCX + 126}" cy="${layout.torsoY + 176}" r="8" fill="${theme.c1}"/><circle cx="${layout.bodyCX + 146}" cy="${layout.torsoY + 184}" r="8" fill="${theme.c1}"/>`;
+          case "martini":
+            return `<path d="M${layout.bodyCX + 98} ${layout.torsoY + 170} L${layout.bodyCX + 154} ${layout.torsoY + 170} L${layout.bodyCX + 126} ${layout.torsoY + 220} Z" fill="rgba(255,255,255,0.3)" stroke="${theme.c1}" stroke-width="4"/><path d="M${layout.bodyCX + 126} ${layout.torsoY + 220} L${layout.bodyCX + 126} ${layout.torsoY + 276}" stroke="${theme.c1}" stroke-width="4"/>`;
+          case "polaroid":
+            return `<rect x="${layout.bodyCX + 84}" y="${layout.torsoY + 184}" width="90" height="104" rx="8" fill="#fff2e8"/><rect x="${layout.bodyCX + 94}" y="${layout.torsoY + 194}" width="70" height="58" rx="6" fill="${theme.c2}" fill-opacity="0.32"/>`;
+          case "pin":
+            return `<path d="M${layout.bodyCX + 116} ${layout.torsoY + 176} L${layout.bodyCX + 144} ${layout.torsoY + 216}" stroke="${theme.c1}" stroke-width="8"/><circle cx="${layout.bodyCX + 116}" cy="${layout.torsoY + 176}" r="10" fill="${theme.c1}"/>`;
+          default:
+            return "";
+        }
+      }
+
+      function buildPortraitDetail(detail, theme, layout) {
+        switch (detail) {
+          case "earring":
+            return `<circle cx="${layout.headX + 84}" cy="${layout.headY + 42}" r="10" stroke="${theme.c1}" stroke-width="4" fill="none"/>`;
+          case "mole":
+            return `<circle cx="${layout.headX + 22}" cy="${layout.headY + 52}" r="4" fill="${theme.c3}" opacity="0.72"/>`;
+          case "tear":
+            return `<path d="M${layout.headX + 54} ${layout.headY + 34} C${layout.headX + 62} ${layout.headY + 56}, ${layout.headX + 58} ${layout.headY + 76}, ${layout.headX + 48} ${layout.headY + 92}" stroke="${theme.c1}" stroke-width="4" fill="none" opacity="0.72"/>`;
+          case "smudge":
+            return `<path d="M${layout.headX + 42} ${layout.headY + 76} C${layout.headX + 66} ${layout.headY + 82}, ${layout.headX + 82} ${layout.headY + 90}, ${layout.headX + 96} ${layout.headY + 108}" stroke="#ff7b97" stroke-width="8" opacity="0.66" fill="none"/>`;
+          case "glasses":
+            return `<rect x="${layout.headX - 64}" y="${layout.headY - 6}" width="46" height="28" rx="12" stroke="${theme.c1}" stroke-width="4" fill="none"/><rect x="${layout.headX + 10}" y="${layout.headY - 6}" width="46" height="28" rx="12" stroke="${theme.c1}" stroke-width="4" fill="none"/><path d="M${layout.headX - 18} ${layout.headY + 8} L${layout.headX + 10} ${layout.headY + 8}" stroke="${theme.c1}" stroke-width="4"/>`;
+          case "scar-brow":
+            return `<path d="M${layout.headX + 14} ${layout.headY - 28} L${layout.headX + 36} ${layout.headY - 2}" stroke="${theme.c1}" stroke-width="4" opacity="0.76"/>`;
+          case "eye-bag":
+            return `<path d="M${layout.headX - 54} ${layout.headY + 28} C${layout.headX - 40} ${layout.headY + 40}, ${layout.headX - 16} ${layout.headY + 40}, ${layout.headX - 2} ${layout.headY + 30}" stroke="${theme.c2}" stroke-width="4" opacity="0.4" fill="none"/><path d="M${layout.headX + 14} ${layout.headY + 28} C${layout.headX + 28} ${layout.headY + 40}, ${layout.headX + 48} ${layout.headY + 40}, ${layout.headX + 62} ${layout.headY + 28}" stroke="${theme.c2}" stroke-width="4" opacity="0.4" fill="none"/>`;
+          case "veil":
+            return `<path d="M${layout.headX - 104} ${layout.headY - 24} C${layout.headX - 64} ${layout.headY + 54}, ${layout.headX - 34} ${layout.headY + 136}, ${layout.headX + 10} ${layout.headY + 212}" stroke="rgba(255,255,255,0.22)" stroke-width="12" fill="none"/>`;
+          case "star":
+            return `<path d="M${layout.headX + 88} ${layout.headY - 58} L${layout.headX + 96} ${layout.headY - 40} L${layout.headX + 116} ${layout.headY - 38} L${layout.headX + 102} ${layout.headY - 24} L${layout.headX + 106} ${layout.headY - 4} L${layout.headX + 88} ${layout.headY - 14} L${layout.headX + 70} ${layout.headY - 4} L${layout.headX + 74} ${layout.headY - 24} L${layout.headX + 60} ${layout.headY - 38} L${layout.headX + 80} ${layout.headY - 40} Z" fill="${theme.c1}" opacity="0.78"/>`;
+          case "bandage":
+            return `<rect x="${layout.headX - 86}" y="${layout.headY - 24}" width="40" height="18" rx="9" fill="#f7e8d7" opacity="0.86"/><circle cx="${layout.headX - 66}" cy="${layout.headY - 15}" r="4" fill="${theme.c2}" opacity="0.48"/>`;
+          case "blush":
+            return `<ellipse cx="${layout.headX - 56}" cy="${layout.headY + 62}" rx="18" ry="10" fill="#ff9cb0" opacity="0.38"/><ellipse cx="${layout.headX + 56}" cy="${layout.headY + 60}" rx="18" ry="10" fill="#ff9cb0" opacity="0.38"/>`;
+          case "lash-heavy":
+            return `<path d="M${layout.headX - 60} ${layout.headY - 2} L${layout.headX - 48} ${layout.headY - 18}" stroke="${theme.c3}" stroke-width="4"/><path d="M${layout.headX + 40} ${layout.headY - 2} L${layout.headX + 52} ${layout.headY - 18}" stroke="${theme.c3}" stroke-width="4"/>`;
+          case "whisker":
+            return `<path d="M${layout.headX - 108} ${layout.headY + 72} L${layout.headX - 56} ${layout.headY + 62}" stroke="${theme.c1}" stroke-width="3" opacity="0.62"/><path d="M${layout.headX + 56} ${layout.headY + 62} L${layout.headX + 108} ${layout.headY + 72}" stroke="${theme.c1}" stroke-width="3" opacity="0.62"/>`;
+          case "earring-long":
+            return `<path d="M${layout.headX + 82} ${layout.headY + 34} L${layout.headX + 88} ${layout.headY + 88}" stroke="${theme.c1}" stroke-width="4"/><circle cx="${layout.headX + 88}" cy="${layout.headY + 96}" r="8" fill="${theme.c1}" opacity="0.78"/>`;
+          case "freckle":
+            return `<circle cx="${layout.headX - 34}" cy="${layout.headY + 54}" r="4" fill="${theme.c3}" opacity="0.34"/><circle cx="${layout.headX - 18}" cy="${layout.headY + 64}" r="3" fill="${theme.c3}" opacity="0.34"/><circle cx="${layout.headX - 4}" cy="${layout.headY + 54}" r="3" fill="${theme.c3}" opacity="0.34"/>`;
+          case "beauty-mark":
+            return `<circle cx="${layout.headX + 18}" cy="${layout.headY + 82}" r="5" fill="${theme.c3}" opacity="0.72"/>`;
+          default:
+            return "";
+        }
+      }
+
+      function buildThumbOverlay(mode, theme, safeCode, safeType, safeLine, safeA, safeB) {
+        switch (mode) {
+          case "quote-right":
+            return `<rect x="458" y="54" width="286" height="492" rx="28" fill="rgba(14,10,18,0.58)" stroke="${theme.c1}" stroke-opacity="0.24"/><text x="492" y="120" fill="${theme.c1}" font-size="28" font-family="Arial, sans-serif" font-weight="700">${safeCode}</text><text x="492" y="172" fill="#fff3e8" font-size="38" font-family="Georgia, serif" font-weight="700">${safeType}</text><text x="492" y="236" fill="rgba(255,243,232,0.82)" font-size="24" font-family="Arial, sans-serif">${safeLine}</text><text x="492" y="492" fill="rgba(255,243,232,0.62)" font-size="18" font-family="Arial, sans-serif">A ${safeA}</text><text x="492" y="522" fill="rgba(255,243,232,0.62)" font-size="18" font-family="Arial, sans-serif">B ${safeB}</text>`;
+          case "vertical-left":
+            return `<rect x="34" y="44" width="204" height="512" rx="28" fill="rgba(14,10,18,0.54)"/><text x="68" y="118" fill="${theme.c1}" font-size="34" font-family="Georgia, serif" font-weight="700">${safeCode}</text><text x="68" y="182" fill="#fff3e8" font-size="36" font-family="Georgia, serif" font-weight="700">${safeType}</text><text x="68" y="250" fill="rgba(255,243,232,0.8)" font-size="24" font-family="Arial, sans-serif">${safeLine}</text>`;
+          case "close-zoom":
+            return `<rect x="38" y="430" width="724" height="128" rx="24" fill="rgba(14,10,18,0.58)"/><text x="66" y="482" fill="${theme.c1}" font-size="24" font-family="Arial, sans-serif" font-weight="700">${safeCode}</text><text x="66" y="526" fill="#fff3e8" font-size="38" font-family="Georgia, serif" font-weight="700">${safeType}</text><text x="432" y="482" fill="rgba(255,243,232,0.86)" font-size="24" font-family="Arial, sans-serif">${safeLine}</text>`;
+          case "center-badge":
+            return `<rect x="242" y="54" width="316" height="140" rx="28" fill="rgba(14,10,18,0.52)"/><text x="274" y="108" fill="${theme.c1}" font-size="28" font-family="Arial, sans-serif" font-weight="700">${safeCode}</text><text x="274" y="158" fill="#fff3e8" font-size="40" font-family="Georgia, serif" font-weight="700">${safeType}</text>`;
+          case "shoulder-look":
+            return `<rect x="42" y="430" width="360" height="128" rx="24" fill="rgba(14,10,18,0.58)"/><text x="72" y="482" fill="${theme.c1}" font-size="24" font-family="Arial, sans-serif" font-weight="700">${safeCode}</text><text x="72" y="526" fill="#fff3e8" font-size="36" font-family="Georgia, serif" font-weight="700">${safeType}</text><rect x="430" y="56" width="330" height="84" rx="22" fill="rgba(14,10,18,0.48)"/><text x="460" y="108" fill="rgba(255,243,232,0.84)" font-size="22" font-family="Arial, sans-serif">${safeLine}</text>`;
+          case "seated-card":
+            return `<rect x="42" y="48" width="222" height="160" rx="26" fill="rgba(14,10,18,0.56)"/><text x="72" y="106" fill="${theme.c1}" font-size="26" font-family="Arial, sans-serif" font-weight="700">${safeCode}</text><text x="72" y="156" fill="#fff3e8" font-size="34" font-family="Georgia, serif" font-weight="700">${safeType}</text><rect x="420" y="450" width="332" height="104" rx="24" fill="rgba(14,10,18,0.58)"/><text x="450" y="505" fill="rgba(255,243,232,0.84)" font-size="22" font-family="Arial, sans-serif">${safeLine}</text>`;
+          case "dark-frame":
+            return `<rect x="28" y="28" width="744" height="544" rx="34" fill="none" stroke="${theme.c1}" stroke-opacity="0.26" stroke-width="2"/><rect x="56" y="434" width="688" height="116" rx="24" fill="rgba(14,10,18,0.62)"/><text x="88" y="484" fill="${theme.c1}" font-size="24" font-family="Arial, sans-serif" font-weight="700">${safeCode}</text><text x="88" y="526" fill="#fff3e8" font-size="36" font-family="Georgia, serif" font-weight="700">${safeType}</text><text x="414" y="484" fill="rgba(255,243,232,0.84)" font-size="22" font-family="Arial, sans-serif">${safeLine}</text>`;
+          case "tilt-action":
+            return `<path d="M36 522 L218 346 L764 346 L764 560 L118 560 Z" fill="rgba(14,10,18,0.6)"/><text x="84" y="424" fill="${theme.c1}" font-size="24" font-family="Arial, sans-serif" font-weight="700">${safeCode}</text><text x="84" y="474" fill="#fff3e8" font-size="38" font-family="Georgia, serif" font-weight="700">${safeType}</text>`;
+          case "speed-line":
+            return `<g opacity="0.36" stroke="${theme.c1}" stroke-width="6"><path d="M36 122 L246 122"/><path d="M24 164 L198 164"/><path d="M40 206 L230 206"/></g><rect x="430" y="418" width="330" height="136" rx="24" fill="rgba(14,10,18,0.58)"/><text x="462" y="476" fill="${theme.c1}" font-size="24" font-family="Arial, sans-serif" font-weight="700">${safeCode}</text><text x="462" y="526" fill="#fff3e8" font-size="36" font-family="Georgia, serif" font-weight="700">${safeType}</text>`;
+          case "sweet-sticker":
+            return `<rect x="48" y="50" width="168" height="72" rx="36" fill="rgba(255,243,245,0.28)"/><text x="84" y="96" fill="${theme.c3}" font-size="24" font-family="Arial, sans-serif" font-weight="700">${safeCode}</text><rect x="390" y="430" width="364" height="122" rx="28" fill="rgba(255,236,240,0.16)"/><text x="426" y="484" fill="#fff3e8" font-size="36" font-family="Georgia, serif" font-weight="700">${safeType}</text><text x="426" y="526" fill="rgba(255,243,232,0.82)" font-size="22" font-family="Arial, sans-serif">${safeLine}</text>`;
+          case "chaos-burn":
+            return `<path d="M0 470 C120 420, 260 500, 420 450 C600 396, 710 466, 800 430 L800 600 L0 600 Z" fill="rgba(14,10,18,0.66)"/><text x="58" y="506" fill="${theme.c1}" font-size="24" font-family="Arial, sans-serif" font-weight="700">${safeCode}</text><text x="58" y="552" fill="#fff3e8" font-size="40" font-family="Georgia, serif" font-weight="700">${safeType}</text>`;
+          case "cute-note":
+            return `<rect x="52" y="52" width="268" height="120" rx="28" fill="rgba(255,243,232,0.18)"/><text x="86" y="108" fill="${theme.c1}" font-size="26" font-family="Arial, sans-serif" font-weight="700">${safeCode}</text><text x="86" y="154" fill="#fff3e8" font-size="34" font-family="Georgia, serif" font-weight="700">${safeType}</text><circle cx="706" cy="96" r="32" fill="rgba(255,243,232,0.16)"/>`;
+          case "lounge-ticket":
+            return `<rect x="42" y="444" width="716" height="108" rx="22" fill="rgba(14,10,18,0.58)"/><text x="70" y="488" fill="${theme.c1}" font-size="22" font-family="Arial, sans-serif" font-weight="700">${safeCode}</text><text x="70" y="530" fill="#fff3e8" font-size="34" font-family="Georgia, serif" font-weight="700">${safeType}</text><text x="470" y="492" fill="rgba(255,243,232,0.82)" font-size="22" font-family="Arial, sans-serif">${safeLine}</text>`;
+          case "memory-stack":
+            return `<rect x="54" y="60" width="170" height="200" rx="18" fill="rgba(255,243,232,0.16)"/><rect x="74" y="80" width="170" height="200" rx="18" fill="rgba(255,243,232,0.14)"/><rect x="94" y="100" width="170" height="200" rx="18" fill="rgba(255,243,232,0.12)"/><rect x="404" y="430" width="348" height="120" rx="24" fill="rgba(14,10,18,0.58)"/><text x="438" y="480" fill="${theme.c1}" font-size="22" font-family="Arial, sans-serif" font-weight="700">${safeCode}</text><text x="438" y="524" fill="#fff3e8" font-size="34" font-family="Georgia, serif" font-weight="700">${safeType}</text>`;
+          case "profile-strip":
+            return `<rect x="0" y="0" width="230" height="600" fill="rgba(14,10,18,0.48)"/><text x="54" y="94" fill="${theme.c1}" font-size="24" font-family="Arial, sans-serif" font-weight="700">${safeCode}</text><text x="54" y="146" fill="#fff3e8" font-size="34" font-family="Georgia, serif" font-weight="700">${safeType}</text><text x="54" y="514" fill="rgba(255,243,232,0.7)" font-size="20" font-family="Arial, sans-serif">${safeLine}</text>`;
+          default:
+            return `<rect x="42" y="434" width="716" height="120" rx="24" fill="rgba(14,10,18,0.58)"/><text x="70" y="484" fill="${theme.c1}" font-size="24" font-family="Arial, sans-serif" font-weight="700">${safeCode}</text><text x="70" y="528" fill="#fff3e8" font-size="38" font-family="Georgia, serif" font-weight="700">${safeType}</text><text x="454" y="486" fill="rgba(255,243,232,0.82)" font-size="22" font-family="Arial, sans-serif">${safeLine}</text>`;
+        }
+      }
+
+      function buildRevealNarrative(record) {
+        return {
+          firstLook: record.profile.user_portrait + " " + record.profile.friend_review,
+          duality: record.profile.public_mask + " " + record.profile.private_face + " " + record.profile.contrast_twist,
+          relationship: record.profile.relationship_hazard + " " + record.profile.self_destruct_mode,
+          finalVerdict: record.profile.fatal_scene + " " + record.profile.cursed_talent + " " + record.profile.survival_tip
+        };
+      }
+
+      function hydrateRecord(record) {
+        if (!record || !record.parse) return record;
+        const code = record.abti?.code || deriveCode(record.parse.a_selected || [], record.parse.b_selected || []);
+        const abti = { ...deriveAbti(code, record.parse), ...(record.abti || {}) };
+        const nextProfile = deriveProfile(code, record.parse, abti);
+        const profile = { ...nextProfile, ...(record.profile || {}) };
+        if (!profile.portrait_url || /^https:\/\/coresg-normal\.trae\.ai\/api\/ide\/v1\/text_to_image/i.test(profile.portrait_url)) {
+          profile.portrait_url = nextProfile.portrait_url;
+          profile.thumb_url = nextProfile.thumb_url;
+          profile.portrait_alt = nextProfile.portrait_alt;
+          profile.portrait_prompt = nextProfile.portrait_prompt;
+          profile.portrait_caption = profile.portrait_caption || nextProfile.portrait_caption;
+        }
+        const videoSeed = deriveVideo(abti, profile, record.parse);
+        const video = record.video && Array.isArray(record.video.scenes) && record.video.scenes.length ? { ...videoSeed, ...record.video } : videoSeed;
+        return { ...record, abti, profile, video };
+      }
+
+      function getFactionMeta(code) {
+        const key = String(code || "").slice(0, 2);
+        return { key, ...(FACTION_META[key] || { label: "人格事故派", desc: "你不是普通难评，你只是暂时还没被分进更精准的危险流派。" }) };
+      }
+
+      function hasParseShape(value) {
+        return value && Array.isArray(value.a_selected) && Array.isArray(value.b_selected) && value.surface_impression && value.hidden_engine && value.social_weapon && value.crash_trigger;
+      }
+
+      function hasAbtiShape(value) {
+        return value && value.code && value.type_name && value.bait_title && value.roast_line && value.meme_label && value.kill_shot && value.fuse_statement;
+      }
+
+      function hasVideoShape(value) {
+        return value && value.profile && value.video && Array.isArray(value.video.scenes) && value.video.scenes.length >= 4;
+      }
+
+      async function copyCurrent() {
+        const current = getCurrentRecord();
+        await navigator.clipboard.writeText(JSON.stringify(current, null, 2));
+        showToast("已复制当前 ABTI 结果");
+      }
+
+      function stringifyJson(value) {
+        return value ? JSON.stringify(value, null, 2) : "暂无结果";
+      }
+
+      function showToast(message) {
+        toast.textContent = message;
+        toast.style.display = "block";
+        clearTimeout(showToast.timer);
+        showToast.timer = setTimeout(() => {
+          toast.style.display = "none";
+        }, 1800);
+      }
+
+      function shuffle(list) {
+        const next = list.slice();
+        for (let i = next.length - 1; i > 0; i -= 1) {
+          const j = Math.floor(Math.random() * (i + 1));
+          const temp = next[i];
+          next[i] = next[j];
+          next[j] = temp;
+        }
+        return next;
+      }
+
+      function hashString(input) {
+        let hash = 0;
+        for (let i = 0; i < input.length; i += 1) hash = ((hash << 5) - hash + input.charCodeAt(i)) | 0;
+        return Math.abs(hash).toString(36);
+      }
+
+      function structuredCloneData(value) {
+        return JSON.parse(JSON.stringify(value));
+      }
+
+      function escapeHtml(value) {
+        return String(value)
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#39;");
+      }
+
+      function escapeAttr(value) {
+        return escapeHtml(String(value || ""));
+      }
+
+      function escapeSvg(value) {
+        return String(value || "")
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&apos;");
+      }
+    })();
+  </script>
+</body>
+</html>
