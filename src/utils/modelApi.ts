@@ -1,75 +1,52 @@
-import type { ApiConfig, PromptMessage } from '@/types/demo'
+import type { RunStep, ServiceHealth } from '@/types/demo'
 
 type RequestOptions = {
   temperature: number
   signal?: AbortSignal
 }
 
-type ChatCompletionResponse = {
-  choices?: Array<{
-    message?: {
-      content?: string
-    }
-  }>
+type StructuredJsonResponse<T> = {
+  rawText: string
+  parsed: T
 }
 
 function trimTrailingSlash(value: string) {
   return value.replace(/\/+$/, '')
 }
 
-export function buildChatCompletionUrl(baseUrl: string) {
-  const normalized = trimTrailingSlash(baseUrl.trim())
-
-  if (!normalized) {
-    throw new Error('请先填写 Base URL')
+export function buildBackendUrl(path: string, apiBaseUrl = import.meta.env.VITE_API_BASE_URL ?? '') {
+  if (!path.startsWith('/')) {
+    throw new Error('接口路径必须以 / 开头')
   }
 
-  if (/\/chat\/completions$/i.test(normalized)) {
-    return normalized
-  }
-
-  return `${normalized}/chat/completions`
+  const normalized = trimTrailingSlash(apiBaseUrl.trim())
+  return normalized ? `${normalized}${path}` : path
 }
 
-export function extractJsonString(content: string) {
-  const fencedMatch = content.match(/```(?:json)?\s*([\s\S]*?)```/i)
-  if (fencedMatch?.[1]) {
-    return fencedMatch[1].trim()
-  }
-  return content.trim()
-}
+export async function fetchServiceHealth(signal?: AbortSignal) {
+  const response = await fetch(buildBackendUrl('/api/health'), { signal })
 
-export function safeJsonParse<T>(content: string): T {
-  const cleaned = extractJsonString(content)
-  return JSON.parse(cleaned) as T
+  if (!response.ok) {
+    throw new Error(`服务端健康检查失败（${response.status}）`)
+  }
+
+  return (await response.json()) as ServiceHealth
 }
 
 export async function requestStructuredJson<T>(
-  config: ApiConfig,
-  messages: PromptMessage[],
+  step: RunStep,
+  payload: Record<string, unknown>,
   options: RequestOptions,
 ) {
-  if (!config.apiKey.trim()) {
-    throw new Error('请先填写 API Key')
-  }
-
-  if (!config.model.trim()) {
-    throw new Error('请先填写模型名')
-  }
-
-  const url = buildChatCompletionUrl(config.baseUrl)
-
-  const response = await fetch(url, {
+  const response = await fetch(buildBackendUrl('/api/generate'), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${config.apiKey.trim()}`,
     },
     body: JSON.stringify({
-      model: config.model.trim(),
-      messages,
+      step,
+      ...payload,
       temperature: options.temperature,
-      response_format: { type: 'json_object' },
     }),
     signal: options.signal,
   })
@@ -80,20 +57,16 @@ export async function requestStructuredJson<T>(
     throw new Error(`接口请求失败（${response.status}）：${rawText.slice(0, 240)}`)
   }
 
-  let payload: ChatCompletionResponse
+  let data: StructuredJsonResponse<T>
   try {
-    payload = JSON.parse(rawText) as ChatCompletionResponse
+    data = JSON.parse(rawText) as StructuredJsonResponse<T>
   } catch {
     throw new Error('接口返回的不是有效 JSON')
   }
 
-  const content = payload.choices?.[0]?.message?.content
-  if (!content) {
-    throw new Error('模型没有返回可解析的内容')
+  if (!data.rawText) {
+    throw new Error('服务端没有返回原始结果')
   }
 
-  return {
-    rawText: content,
-    parsed: safeJsonParse<T>(content),
-  }
+  return data
 }

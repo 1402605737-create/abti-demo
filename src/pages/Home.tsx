@@ -2,10 +2,9 @@ import { LoaderCircle, RefreshCcw, Sparkles, Wand2 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 
 import { ChipField } from '@/components/ChipField'
-import { ConfigField } from '@/components/ConfigField'
 import { ResultSection } from '@/components/ResultSection'
 import {
-  DEFAULT_API_CONFIG,
+  DEFAULT_GENERATION_CONFIG,
   EMOJI_OPTIONS,
   EXAMPLE_SELECTIONS,
   GENRE_OPTIONS,
@@ -13,22 +12,22 @@ import {
   STORAGE_KEYS,
   TIME_OPTIONS,
 } from '@/constants/demo'
-import { buildBSidePrompt, buildParsePrompt, buildPersonaPrompt } from '@/constants/prompts'
 import { useDemoStore } from '@/store/useDemoStore'
 import type {
-  ApiConfig,
   BSideResult,
   DemoRunResult,
   GenerationMode,
+  GenerationConfig,
   ParseResult,
   PersonaResult,
   RunStep,
   Season,
+  ServiceHealth,
   StepLog,
   TimeOfDay,
   UserSelectionsPayload,
 } from '@/types/demo'
-import { requestStructuredJson } from '@/utils/modelApi'
+import { buildBackendUrl, fetchServiceHealth, requestStructuredJson } from '@/utils/modelApi'
 
 const defaultLogs: StepLog[] = [
   { step: 'parse', status: 'pending', durationMs: null, message: '等待开始' },
@@ -86,31 +85,33 @@ function hasBSideShape(value: BSideResult) {
   )
 }
 
+type ServiceStatus = 'checking' | 'ready' | 'not-configured' | 'error'
+
 export default function Home() {
   const [toast, setToast] = useState<string | null>(null)
+  const [serviceHealth, setServiceHealth] = useState<ServiceHealth | null>(null)
+  const [serviceStatus, setServiceStatus] = useState<ServiceStatus>('checking')
   const {
     selections,
     timeOfDay,
     season,
-    apiConfig,
+    generationConfig,
     result,
     status,
     activeStep,
     errorMessage,
     requestDurationMs,
     stepLogs,
-    showApiKey,
     setSelections,
     setTimeOfDay,
     setSeason,
-    updateApiConfig,
+    updateGenerationConfig,
     hydrate,
     setStatus,
     setActiveStep,
     setErrorMessage,
     setRequestStartedAt,
     setRequestDurationMs,
-    setShowApiKey,
     setStepLogs,
     setParseResult,
     setPersonaResult,
@@ -120,11 +121,11 @@ export default function Home() {
   } = useDemoStore()
 
   useEffect(() => {
-    const storedConfig = readStorage<ApiConfig>(STORAGE_KEYS.config)
+    const storedConfig = readStorage<GenerationConfig>(STORAGE_KEYS.config)
     const storedSelections = readStorage<UserSelectionsPayload>(STORAGE_KEYS.selections)
     const storedResult = readStorage<DemoRunResult>(STORAGE_KEYS.result)
     hydrate({
-      apiConfig: storedConfig ?? DEFAULT_API_CONFIG,
+      generationConfig: storedConfig ?? DEFAULT_GENERATION_CONFIG,
       result: storedResult ?? result,
       selections: storedSelections?.selections ?? selections,
       timeOfDay: storedSelections?.timeOfDay ?? timeOfDay,
@@ -135,8 +136,8 @@ export default function Home() {
   }, [])
 
   useEffect(() => {
-    writeStorage(STORAGE_KEYS.config, apiConfig)
-  }, [apiConfig])
+    writeStorage(STORAGE_KEYS.config, generationConfig)
+  }, [generationConfig])
 
   useEffect(() => {
     writeStorage(STORAGE_KEYS.selections, { selections, timeOfDay, season })
@@ -152,18 +153,64 @@ export default function Home() {
     return () => window.clearTimeout(timer)
   }, [toast])
 
+  useEffect(() => {
+    const controller = new AbortController()
+
+    const checkService = async () => {
+      setServiceStatus('checking')
+
+      try {
+        const nextHealth = await fetchServiceHealth(controller.signal)
+        setServiceHealth(nextHealth)
+        setServiceStatus(nextHealth.configured ? 'ready' : 'not-configured')
+      } catch {
+        setServiceHealth(null)
+        setServiceStatus('error')
+      }
+    }
+
+    void checkService()
+    return () => controller.abort()
+  }, [])
+
   const connectionText = useMemo(() => {
-    if (!apiConfig.apiKey || !apiConfig.model || !apiConfig.baseUrl) {
-      return '等待配置接口'
+    if (serviceStatus === 'checking') {
+      return '正在检查服务端'
+    }
+    if (serviceStatus === 'not-configured') {
+      return '服务端待配置'
+    }
+    if (serviceStatus === 'error') {
+      return '服务端未连接'
     }
     if (status === 'error') {
       return '最近一次调用失败'
     }
     if (status === 'success') {
-      return '接口可继续调用'
+      return '服务端可继续调用'
     }
-    return '接口参数已就绪'
-  }, [apiConfig, status])
+    return '服务端模型已就绪'
+  }, [serviceStatus, status])
+
+  const serviceBadge = useMemo(() => {
+    if (serviceStatus === 'checking') return '检查中'
+    if (serviceStatus === 'ready') return '已接管'
+    if (serviceStatus === 'not-configured') return '待配置'
+    return '异常'
+  }, [serviceStatus])
+
+  const serviceMeta = useMemo(() => {
+    if (serviceStatus === 'checking') {
+      return '正在检查后端服务与模型配置状态'
+    }
+    if (serviceStatus === 'error') {
+      return '当前无法连接服务端，请检查 Node 服务、域名或反向代理'
+    }
+    if (serviceStatus === 'not-configured') {
+      return '服务端已启动，但还没有配置 OPENAI_BASE_URL / OPENAI_API_KEY / OPENAI_MODEL'
+    }
+    return `当前模型：${serviceHealth?.modelName ?? '未返回'}`
+  }, [serviceHealth?.modelName, serviceStatus])
 
   const toggleSelection = (value: string) => {
     setSelections(
@@ -207,9 +254,9 @@ export default function Home() {
         setActiveStep('parse')
         updateLog('parse', { status: 'running', message: '正在解析你的偏好' })
         const parseResponse = await requestStructuredJson<ParseResult>(
-          apiConfig,
-          buildParsePrompt({ selections, timeOfDay, season }),
-          { temperature: apiConfig.temperatureParse },
+          'parse',
+          { selections, timeOfDay, season },
+          { temperature: generationConfig.temperatureParse },
         )
         if (!hasParseShape(parseResponse.parsed)) {
           throw new Error('输入解析结果缺少必要字段')
@@ -232,9 +279,9 @@ export default function Home() {
         setActiveStep('persona')
         updateLog('persona', { status: 'running', message: '正在生成你的 A 面人格' })
         const personaResponse = await requestStructuredJson<PersonaResult>(
-          apiConfig,
-          buildPersonaPrompt({ selections, timeOfDay, season }, parseResult),
-          { temperature: apiConfig.temperaturePersona },
+          'persona',
+          { selections, timeOfDay, season, parseResult },
+          { temperature: generationConfig.temperaturePersona },
         )
         if (!hasPersonaShape(personaResponse.parsed)) {
           throw new Error('A 面结果缺少必要字段')
@@ -256,9 +303,9 @@ export default function Home() {
         setActiveStep('b-side')
         updateLog('b-side', { status: 'running', message: '正在寻找你的 B 面歌曲' })
         const bSideResponse = await requestStructuredJson<BSideResult>(
-          apiConfig,
-          buildBSidePrompt(parseResult, personaResult),
-          { temperature: apiConfig.temperatureBSide },
+          'b-side',
+          { parseResult, personaResult },
+          { temperature: generationConfig.temperatureBSide },
         )
         if (!hasBSideShape(bSideResponse.parsed)) {
           throw new Error('B 面结果缺少必要字段')
@@ -272,10 +319,14 @@ export default function Home() {
       }
 
       setStatus('success')
+      setServiceStatus('ready')
       setActiveStep(null)
       setRequestDurationMs(Math.round(performance.now() - flowStart))
     } catch (error) {
       const message = error instanceof Error ? error.message : '生成失败，请稍后重试'
+      if (/Failed to fetch|NetworkError|ERR_CONNECTION|服务端/.test(message)) {
+        setServiceStatus('error')
+      }
       if (activeStep === 'parse' || activeStep === 'persona' || activeStep === 'b-side') {
         updateLog(activeStep, { status: 'error', message })
       }
@@ -310,11 +361,17 @@ export default function Home() {
           <p className="eyebrow">Your Hidden Track</p>
           <h1>你的B面</h1>
           <p className="hero-copy">
-            把三段 Prompt 链路接上真实模型接口，现场生成 A 面观影人格和 B 面歌曲推荐。
+            由服务端安全调用真实模型，现场生成 A 面观影人格和 B 面歌曲推荐。
           </p>
         </div>
         <div className="hero-status">
-          <span className={status === 'error' ? 'status-dot error' : 'status-dot'} />
+          <span
+            className={
+              status === 'error' || serviceStatus === 'error' || serviceStatus === 'not-configured'
+                ? 'status-dot error'
+                : 'status-dot'
+            }
+          />
           <div>
             <strong>{connectionText}</strong>
             <p>链路：输入解析 → A 面人格 → B 面推荐</p>
@@ -368,35 +425,27 @@ export default function Home() {
           <section className="panel-card">
             <div className="section-head">
               <div>
-                <p className="eyebrow">模型接口配置</p>
-                <p className="section-hint">支持兼容 OpenAI Chat Completions 协议的接口</p>
+                <p className="eyebrow">服务端模型配置</p>
+                <p className="section-hint">正式版由后端统一保存 API Key 和 Prompt，前端只负责调用业务接口</p>
               </div>
-              <span className="tiny-badge">本地保存</span>
+              <span className="tiny-badge">{serviceBadge}</span>
             </div>
-            <div className="field-grid">
-              <ConfigField
-                label="Base URL"
-                value={apiConfig.baseUrl}
-                onChange={(value) => updateApiConfig({ baseUrl: value })}
-                placeholder="https://api.openai.com/v1"
-              />
-              <ConfigField
-                label="模型名"
-                value={apiConfig.model}
-                onChange={(value) => updateApiConfig({ model: value })}
-                placeholder="gpt-4.1-mini"
-              />
-              <ConfigField
-                label="API Key"
-                value={apiConfig.apiKey}
-                onChange={(value) => updateApiConfig({ apiKey: value })}
-                type="password"
-                placeholder="sk-..."
-                maskToggle={{
-                  shown: showApiKey,
-                  onToggle: () => setShowApiKey(!showApiKey),
-                }}
-              />
+            <div className="service-grid">
+              <div className="service-item">
+                <span className="field-label">调用入口</span>
+                <strong>{buildBackendUrl('/api/generate')}</strong>
+                <p>本地开发默认通过 Vite 代理转发到 `localhost:3000`</p>
+              </div>
+              <div className="service-item">
+                <span className="field-label">模型状态</span>
+                <strong>{serviceHealth?.modelName ?? '待服务端配置'}</strong>
+                <p>{serviceMeta}</p>
+              </div>
+              <div className="service-item">
+                <span className="field-label">安全策略</span>
+                <strong>API Key 仅保存在服务端</strong>
+                <p>正式上线时请结合域名、CORS 和限流规则一起部署</p>
+              </div>
             </div>
 
             <div className="temperature-grid">
@@ -407,10 +456,10 @@ export default function Home() {
                   min="0"
                   max="1.2"
                   step="0.1"
-                  value={apiConfig.temperatureParse}
-                  onChange={(event) => updateApiConfig({ temperatureParse: Number(event.target.value) })}
+                  value={generationConfig.temperatureParse}
+                  onChange={(event) => updateGenerationConfig({ temperatureParse: Number(event.target.value) })}
                 />
-                <strong>{apiConfig.temperatureParse.toFixed(1)}</strong>
+                <strong>{generationConfig.temperatureParse.toFixed(1)}</strong>
               </label>
               <label>
                 <span>A 面温度</span>
@@ -419,10 +468,10 @@ export default function Home() {
                   min="0.4"
                   max="1.4"
                   step="0.1"
-                  value={apiConfig.temperaturePersona}
-                  onChange={(event) => updateApiConfig({ temperaturePersona: Number(event.target.value) })}
+                  value={generationConfig.temperaturePersona}
+                  onChange={(event) => updateGenerationConfig({ temperaturePersona: Number(event.target.value) })}
                 />
-                <strong>{apiConfig.temperaturePersona.toFixed(1)}</strong>
+                <strong>{generationConfig.temperaturePersona.toFixed(1)}</strong>
               </label>
               <label>
                 <span>B 面温度</span>
@@ -431,10 +480,10 @@ export default function Home() {
                   min="0.4"
                   max="1.5"
                   step="0.1"
-                  value={apiConfig.temperatureBSide}
-                  onChange={(event) => updateApiConfig({ temperatureBSide: Number(event.target.value) })}
+                  value={generationConfig.temperatureBSide}
+                  onChange={(event) => updateGenerationConfig({ temperatureBSide: Number(event.target.value) })}
                 />
-                <strong>{apiConfig.temperatureBSide.toFixed(1)}</strong>
+                <strong>{generationConfig.temperatureBSide.toFixed(1)}</strong>
               </label>
             </div>
           </section>
@@ -475,7 +524,7 @@ export default function Home() {
             <div>
               <p className="eyebrow">A 面人格</p>
               <h2>{result.personaResult?.personality_name ?? '等待你的另一面出现'}</h2>
-              <p>{result.personaResult?.description ?? '先配置模型接口，再点击生成整套结果。'}</p>
+              <p>{result.personaResult?.description ?? '服务端模型就绪后，再点击生成整套结果。'}</p>
             </div>
             <div className="summary-metrics">
               <div>
@@ -571,7 +620,7 @@ export default function Home() {
       </div>
 
       <footer className="footer-note">
-        <p>提示：这是浏览器直连模型 API 的 Demo，API Key 仅保存在当前浏览器本地。</p>
+        <p>提示：正式版通过服务端代理调用模型，生产 API Key 应只保存在腾讯云服务端环境变量中。</p>
       </footer>
 
       {toast ? <div className="toast">{toast}</div> : null}

@@ -1,11 +1,11 @@
 import { create } from 'zustand'
 
-import { DEFAULT_API_CONFIG } from '@/constants/demo'
+import { DEFAULT_GENERATION_CONFIG } from '@/constants/demo'
 import type {
-  ApiConfig,
   BSideResult,
   DemoRunResult,
   DemoStatus,
+  GenerationConfig,
   ParseResult,
   PersonaResult,
   Season,
@@ -17,7 +17,7 @@ type DemoStore = {
   selections: string[]
   timeOfDay: TimeOfDay
   season: Season
-  apiConfig: ApiConfig
+  generationConfig: GenerationConfig
   result: DemoRunResult
   status: DemoStatus
   activeStep: string | null
@@ -25,18 +25,16 @@ type DemoStore = {
   requestStartedAt: number | null
   requestDurationMs: number | null
   stepLogs: StepLog[]
-  showApiKey: boolean
   setSelections: (selections: string[]) => void
   setTimeOfDay: (timeOfDay: TimeOfDay) => void
   setSeason: (season: Season) => void
-  updateApiConfig: (patch: Partial<ApiConfig>) => void
-  hydrate: (payload: Partial<Pick<DemoStore, 'selections' | 'timeOfDay' | 'season' | 'apiConfig' | 'result'>>) => void
+  updateGenerationConfig: (patch: Partial<GenerationConfig>) => void
+  hydrate: (payload: Partial<Pick<DemoStore, 'selections' | 'timeOfDay' | 'season' | 'generationConfig' | 'result'>>) => void
   setStatus: (status: DemoStatus) => void
   setActiveStep: (step: string | null) => void
   setErrorMessage: (message: string | null) => void
   setRequestStartedAt: (value: number | null) => void
   setRequestDurationMs: (value: number | null) => void
-  setShowApiKey: (show: boolean) => void
   setStepLogs: (logs: StepLog[]) => void
   updateResult: (patch: Partial<DemoRunResult>) => void
   setParseResult: (parseResult: ParseResult, rawText: string) => void
@@ -61,7 +59,7 @@ export const useDemoStore = create<DemoStore>((set) => ({
   selections: ['🌃', '悬疑', '治愈'],
   timeOfDay: '深夜',
   season: '夏天',
-  apiConfig: DEFAULT_API_CONFIG,
+  generationConfig: DEFAULT_GENERATION_CONFIG,
   result: emptyResult,
   status: 'idle',
   activeStep: null,
@@ -69,14 +67,13 @@ export const useDemoStore = create<DemoStore>((set) => ({
   requestStartedAt: null,
   requestDurationMs: null,
   stepLogs: [],
-  showApiKey: false,
   setSelections: (selections) => set({ selections }),
   setTimeOfDay: (timeOfDay) => set({ timeOfDay }),
   setSeason: (season) => set({ season }),
-  updateApiConfig: (patch) =>
+  updateGenerationConfig: (patch) =>
     set((state) => ({
-      apiConfig: {
-        ...state.apiConfig,
+      generationConfig: {
+        ...state.generationConfig,
         ...patch,
       },
     })),
@@ -85,7 +82,7 @@ export const useDemoStore = create<DemoStore>((set) => ({
       selections: payload.selections ?? state.selections,
       timeOfDay: payload.timeOfDay ?? state.timeOfDay,
       season: payload.season ?? state.season,
-      apiConfig: payload.apiConfig ?? state.apiConfig,
+      generationConfig: payload.generationConfig ?? state.generationConfig,
       result: payload.result ?? state.result,
     })),
   setStatus: (status) => set({ status }),
@@ -93,7 +90,6 @@ export const useDemoStore = create<DemoStore>((set) => ({
   setErrorMessage: (errorMessage) => set({ errorMessage }),
   setRequestStartedAt: (requestStartedAt) => set({ requestStartedAt }),
   setRequestDurationMs: (requestDurationMs) => set({ requestDurationMs }),
-  setShowApiKey: (showApiKey) => set({ showApiKey }),
   setStepLogs: (stepLogs) => set({ stepLogs }),
   updateResult: (patch) =>
     set((state) => ({
@@ -153,7 +149,7 @@ export const useDemoStore = create<DemoStore>((set) => ({
       selections: ['🌃', '悬疑', '治愈'],
       timeOfDay: '深夜',
       season: '夏天',
-      apiConfig: DEFAULT_API_CONFIG,
+      generationConfig: DEFAULT_GENERATION_CONFIG,
       result: emptyResult,
       status: 'idle',
       activeStep: null,
@@ -161,6 +157,5 @@ export const useDemoStore = create<DemoStore>((set) => ({
       requestStartedAt: null,
       requestDurationMs: null,
       stepLogs: [],
-      showApiKey: false,
     }),
 }))

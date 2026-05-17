@@ -11,10 +11,7 @@ export type PromptMessage = {
   content: string
 }
 
-export type ApiConfig = {
-  baseUrl: string
-  apiKey: string
-  model: string
+export type GenerationConfig = {
   temperatureParse: number
   temperaturePersona: number
   temperatureBSide: number
@@ -24,6 +21,12 @@ export type UserSelectionsPayload = {
   selections: string[]
   timeOfDay: TimeOfDay
   season: Season
+}
+
+export type ServiceHealth = {
+  ok: boolean
+  configured: boolean
+  modelName: string | null
 }
 
 export type ParseResult = {

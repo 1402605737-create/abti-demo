@@ -1,4 +1,4 @@
-import type { ApiConfig, Season, TimeOfDay } from '@/types/demo'
+import type { GenerationConfig, Season, TimeOfDay } from '@/types/demo'
 
 export const GENRE_OPTIONS = [
   '悬疑',
@@ -21,10 +21,7 @@ export const TIME_OPTIONS: TimeOfDay[] = ['清晨', '午后', '傍晚', '深夜'
 
 export const SEASON_OPTIONS: Season[] = ['春天', '夏天', '秋天', '冬天']
 
-export const DEFAULT_API_CONFIG: ApiConfig = {
-  baseUrl: 'https://api.openai.com/v1',
-  apiKey: '',
-  model: 'gpt-4.1-mini',
+export const DEFAULT_GENERATION_CONFIG: GenerationConfig = {
   temperatureParse: 0.5,
   temperaturePersona: 1.0,
   temperatureBSide: 1.1,
